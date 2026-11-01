@@ -1,0 +1,71 @@
+{
+  "id": "samo-ecology-v6-morphology-pilot",
+  "version": 2,
+  "status": "isolated morphology-only exploratory pilot; corrected population metrics; not a production protocol",
+  "registered_on": "2026-11-02",
+  "question": "Do the v2 spatial grammar and bounded diversity selection preserve a wider range of actual phenotypes than the v5 neutral lineage under the same morphology-attempt budget?",
+  "hypotheses": [
+    "v2 makes non-spherical mandatory-component shells and spatial branching reachable without a preset phenotype",
+    "v6 novelty and bounded MAP-Elites-like donor selection change retained phenotype diversity relative to v6 neutral",
+    "none of these morphology measurements imply better numeric prediction"
+  ],
+  "input": {
+    "kind": "one frozen computational genome from a current public production snapshot",
+    "shared_across_conditions": true,
+    "organism_births": false,
+    "heldout_computational_tasks": false
+  },
+  "conditions": [
+    {"id": "v5-neutral", "interpreter": "samo-morphogenesis-1", "founders": "single common registered founder", "selection": "neutral replacement"},
+    {"id": "v6-neutral", "interpreter": "samo-morphogenesis-2", "founders": "seeded mutation-generated founders", "selection": "neutral replacement"},
+    {"id": "v6-novelty", "interpreter": "samo-morphogenesis-2", "founders": "seeded mutation-generated founders", "selection": "replace only with a previously unseen phenotype"},
+    {"id": "v6-map-elites", "interpreter": "samo-morphogenesis-2", "founders": "seeded mutation-generated founders", "selection": "bounded descriptor archive used as a uniform donor pool; no quality score"}
+  ],
+  "design": {
+    "unit_of_independence": "seeded replicate",
+    "paired_seed_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+    "attempts_per_replicate_condition": 256,
+    "starting_population_size": 4,
+    "mutation_randomness": "counter-derived per attempt from the replicate seed and attempt index; the same random tape is used across conditions",
+    "all_attempts_recorded": true,
+    "map_capacity": 64,
+    "map_replacement": "random within occupied cells; when full, a new cell evicts a uniformly chosen cell; no best-ever restoration"
+  },
+  "primary_outcomes": [
+    "unique phenotype hashes in the active population at the fixed endpoint",
+    "distinct morphology descriptor cells represented by the active population at the fixed endpoint",
+    "median pairwise Hamming distance between active-population descriptor cells"
+  ],
+  "secondary_outcomes": [
+    "unique positions, non-spherical mandatory shells, decorative nodes, shape types, branching nodes, spatial span, truncation, morphology fuel, CPU seconds, peak RSS",
+    "archive phenotype count and occupied cells reported separately from active-population outcomes",
+    "founder diversity and fraction of accepted genotype changes that alter the phenotype",
+    "phenotype retention at attempts 64, 128, and 256; no separate stress test is claimed"
+  ],
+  "analysis": {
+    "direction": "descriptive and two-sided; no monotonic improvement target",
+    "effect": "paired per-seed differences; report median and bootstrap 95% interval resampling independent seeds",
+    "multiplicity": "Holm correction for the three prespecified v6-v5/v6-neutral primary comparisons",
+    "failures": "retain timeouts, interpreter errors, and invalid candidates as explicit attempts; no replacement seed",
+    "stopping": "256 attempts for every assigned seed-condition; stop early only for VM safety and preserve partial rows"
+  },
+  "bounds": {
+    "interpreter_fuel_per_development": 2048,
+    "geometry_nodes": 256,
+    "development_depth": 8,
+    "rules": 16,
+    "instructions_per_rule": 32,
+    "sqlite_max_bytes": 100000000,
+    "environment": "existing separate Linux VM, 1 vCPU and 1 GiB configured memory; no production VPS compute"
+  },
+  "limitations": [
+    "This is an isolated morphology-only benchmark, not computational organism births or evidence of prediction ability.",
+    "A single frozen computational genome limits generalization across architectures.",
+    "The archive supports phenotype diversity by design; that is a treatment mechanism, not evidence that MAP-Elites improves computational fitness.",
+    "A confirmatory study requires fresh paired seeds and a frozen implementation after this pilot."
+  ],
+  "correction_history": [
+    {"version": 1, "issue": "The initial analysis substituted MAP-Elites archive members for active population members in shared diversity outcomes, making group endpoints incomparable.", "handling": "Preserved as pilot-v1-metric-mixing.sqlite and summary-v1-metric-mixing.json; superseded, not deleted."},
+    {"version": 2, "correction": "All primary outcomes are now calculated from the active population for every condition. Archive metrics are reported separately and are not part of the group comparisons.", "interpretation": "Still exploratory; same paired seeds are retained for an implementation-corrected pilot, not a fresh-seed confirmation."}
+  ]
+}

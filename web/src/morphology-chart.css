@@ -1,0 +1,19 @@
+.morph-history-plot {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.morph-history-plot svg {
+  width: max(100%, 1040px);
+  max-height: none;
+}
+
+.morph-history-point:hover,
+.morph-history-point:focus {
+  r: 4.5;
+}
+
+@media (max-width: 760px) {
+  .morph-history-plot svg { width: 1040px; }
+}

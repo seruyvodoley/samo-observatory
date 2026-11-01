@@ -1,20 +1,21 @@
 # САМО: действующая эксплуатация
 
-Публичный адрес: https://samo-observatory.pages.dev/ . HTML/CSS/React размещены на Pages; отдельная Pages Function только читает проверенный JSON из одного KV key. Она принимает GET/HEAD; остальные методы возвращают 405. Геномы, испытатель, SQLite и закрытые seeds остаются на VPS. Доменной зоны в аккаунте нет, поэтому именованный Tunnel не создавался; выбран разрешённый владельцем Pages fallback.
+Публичный адрес: [samo-observatory.duckdns.org](https://samo-observatory.duckdns.org/). Сайт и организм размещены на VPS; Caddy направляет только отдельный hostname обсерватории на read-only origin 127.0.0.1:4180. DuckDNS предоставляет имя, но не хостинг. Старый Cloudflare Pages проект и пустой namespace Workers KV удалены 2026-11-02 после проверки прямой публикации с VPS.
 
 ## Службы и данные
 
 - `srv-samo.mount`: существующий расширенный ext4 loop, `/srv/samo`.
 - `samo-web.service`: origin `127.0.0.1:4180`; отдельный UID; 10% CPU, 96 000 000 байт RAM.
-- `samo-organism.service`: популяционный протокол `samo-ecology-v2`, 40% одного CPU, 512 000 000 байт RAM, swap 0, TasksMax 16, watchdog 120 секунд. После технической ошибки Restart=on-failure, 30 секунд паузы, максимум три запуска за час.
-- `samo-recorder-export.timer`: каждые 30 секунд запускает trusted exporter; он читает согласованную SQLite-копию в памяти, проверяет checkpoint/event/trial commitments и атомарно заменяет `/srv/samo/site/data/ecosystem.json`. Ошибка оставляет предыдущий документ.
-- `samo-publish.timer`: каждые 120 секунд публикует только этот JSON через официальный KV API. Pages Function читает с `cacheTtl=30`; ответ edge cache живёт не более 15 секунд. Пересборка React при этом отсутствует. Function не вызывает VPS и не исполняет геном.
-- `samo-aux.slice`: экспорт/публикация совместно ограничены 10% CPU и 160 000 000 байт RAM.
+- `samo-webproxy.service`: Telegram proxy type WEB, Telemt 3.5.16; private listener `127.0.0.1:18080`, exposed only through a private route on the observatory HTTPS host. Service limit: 5% CPU, 64 000 000 bytes RAM, swap 0; no capabilities and no firewall control. Client address and key are deliberately excluded from repository documentation.
+- `samo-organism.service`: популяционный протокол `samo-ecology-v5-morphology`, 40% одного CPU, 512 000 000 байт RAM, swap 0, TasksMax 16, watchdog 120 секунд. После технической ошибки Restart=on-failure, 30 секунд паузы, максимум три запуска за час.
+- `samo-recorder-export.timer`: каждые 30 секунд запускает trusted exporter; он читает согласованную SQLite-копию в памяти, проверяет checkpoint/event/trial commitments и атомарно заменяет `/srv/samo/site/data/ecosystem.json`. Каталог `site/data` принадлежит `samo-export`, чтобы атомарная замена работала после каждой статической публикации. Ошибка оставляет предыдущий документ. Timer должен быть включён в автозагрузку и активен.
+- `samo-publish.timer`: отключён 2026-11-02 после миграции сайта с Cloudflare Pages на прямую публикацию с VPS. Не включать повторно без нового решения об архитектуре.
+- `samo-aux.slice`: exporter and WEB proxy share 10% CPU and 160 000 000 bytes RAM; the proxy has its own 5% CPU and 64 000 000 byte child ceiling. The retired publisher timer remains disabled.
 - `samo.slice`: общий предел 60% CPU и 768 000 000 байт RAM; CPUWeight/IOWeight=10 понижают приоритет САМО относительно обычных системных служб, не меняя TunnelDeck. Сумма верхних RAM-бюджетов организма, web и auxiliary составляет 768 000 000 байт.
 
-Oneshot exporter/publisher штатно находятся в inactive между успешными запусками; это не отказ службы. Оба timer должны быть active/enabled. VPS не перезагружался; автозагрузка и цикл mount→start проверены отдельно.
+Oneshot exporter штатно находится в inactive между успешными запусками; это не отказ службы. `samo-recorder-export.timer` должен быть active/enabled; `samo-publish.timer` после удаления Pages должен быть disabled. В момент обращения о задержке exporter timer был остановлен, поэтому сайт оставался на прежнем снимке. Его снова запустили; журнал подтвердил возобновление экспортов, текущий timer active/enabled, организм и веб-служба active. Самостоятельная работа не означает монотонного прогресса организма.
 
-Код `/srv/samo/code` принадлежит root и защищён от записи организмом. Все данные, SQLite rollback journal, checkpoint, backup, releases и временные файлы находятся в `/srv/samo`. Отдельный `samo-publish` владеет только приватным каталогом `/srv/samo/publisher` (0700); OAuth-файл 0600. Организм и экспортёр не имеют его UID/прав. Синтезированный байткод вообще не имеет opcode файлов, сети, процессов или shell. Отключены core dumps; прикладные stdout/stderr отключены. Общие системные Python/библиотеки, systemd и его lifecycle-журнал остаются общими ресурсами хоста и не устанавливались заново для САМО.
+Код `/srv/samo/code` принадлежит root и защищён от записи организмом. Все данные, SQLite rollback journal, checkpoint, backup, releases и временные файлы находятся в `/srv/samo`. Удалённая публикация Cloudflare отключена; ни организм, ни экспортёр не получают учётные данные для неё. Синтезированный байткод вообще не имеет opcode файлов, сети, процессов или shell. Отключены core dumps; прикладные stdout/stderr отключены. Общие системные Python/библиотеки, systemd и его lifecycle-журнал остаются общими ресурсами хоста и не устанавливались заново для САМО.
 
 ## Хранилище
 
@@ -40,13 +41,13 @@ PYTHONPATH=. python3 tools/replay_ecology.py PRIVATE_CONSISTENT_COPY.sqlite
 
 ## Обновление и остановка
 
-Фронтенд: `npm run build --prefix web`, затем `python3 tools/deploy_pages.py`. Этот операторский инструмент получает актуальную OAuth-сессию по уже авторизованному SSH, передаёт её только процессу Wrangler и не выводит секреты. OAuth refresh-токен publisher — единственная каноническая сессия; отдельный `wrangler login` для того же аккаунта заменяет её и может остановить публикацию до восстановления credentials. Не запускать отдельный локальный OAuth login и не копировать его конфигурацию на VPS. Авторизация приложения сейчас шире одного KV; минимальный отдельный grant желателен при следующем административном обслуживании. Доступ закрыт отдельным UID/0700, user/organism/public JSON его не получают.
+Фронтенд: `npm run build --prefix web`, затем `python3 tools/deploy_vps.py`. Скрипт передаёт собранные статические файлы на VPS, сохраняя текущий публичный снимок `data/ecosystem.json`; публикация в Cloudflare больше не используется. Страница проверяет наличие нового снимка каждые 15 секунд; совпадающий ETag подтверждает отсутствие изменений без повторной загрузки большого JSON. После возврата во вкладку проверка запускается сразу. Экспорт на VPS остаётся отдельным циклом с периодом 30 секунд. Telegram WEB использует отдельный закрытый от документации путь на том же HTTPS-хосте; инструкция и ограничения — в [TELEGRAM-WEB-PROXY.md](TELEGRAM-WEB-PROXY.md).
 
 Backend release сначала проходит отдельную VM. Архивировать исходники и протокол до обновления. При смене source hash продолжение запрещается по умолчанию. Для текущего исправления read-lock выполнена одноразовая явная recorder-only миграция `tools/migrate_recorder_snapshot.py`; её запись публична в `interventions`, а хеш активного checkpoint не изменялся. Не использовать эту миграцию для изменения отбора, VM ABI, задач или геномов; для этого нужен новый научный протокол/документированная миграция.
 
-Остановка попыток: `systemctl stop samo-organism.service`. Web/Pages/экспорт истории остаются независимы. Возобновление: `systemctl start samo-organism.service`; после достижения StartLimit сначала устранить причину и явно выполнить `systemctl reset-failed samo-organism.service`. Не подменять это созданием новой линии.
+Остановка попыток: `systemctl stop samo-organism.service`. Web и экспорт истории остаются независимы. Возобновление: `systemctl start samo-organism.service`; после достижения StartLimit сначала устранить причину и явно выполнить `systemctl reset-failed samo-organism.service`. Не подменять это созданием новой линии.
 
-Удаление только САМО: сначала `disable --now` для `samo-organism.service`, `samo-web.service`, `samo-recorder-export.timer`, `samo-publish.timer`; проверить архивы, остановить mount и сохранить image. Удалять собственные unit-файлы, UID и image только после явного решения владельца о судьбе научного архива. TunnelDeck/firewall/существующий HTTPS не входят в процедуру. Cloudflare Pages/KV удаляются отдельно через свой проект, без изменений других проектов аккаунта.
+Удаление только САМО: сначала `disable --now` для `samo-organism.service`, `samo-web.service`, `samo-recorder-export.timer`, `samo-publish.timer`; проверить архивы, остановить mount и сохранить image. Удалять собственные unit-файлы, UID и image только после явного решения владельца о судьбе научного архива. TunnelDeck/firewall/существующий HTTPS не входят в процедуру. Старый Pages-проект и пустой связанный namespace KV удалены.
 
 ## Остаточные ограничения
 
