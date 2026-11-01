@@ -1,0 +1,9 @@
+[Unit]
+Description=Publish checked SAMO observation without rebuilding the site
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=120s
+AccuracySec=5s
+Unit=samo-publish.service
+[Install]
+WantedBy=timers.target
