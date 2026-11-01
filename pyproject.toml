@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "samo-observatory"
+version = "0.1.0"
+description = "Bounded self-modifying program evolution and a read-only research observatory"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+samo = "samo.cli:main"
+
+[tool.setuptools]
+packages = ["samo"]

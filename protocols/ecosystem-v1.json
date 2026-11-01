@@ -1,0 +1,15 @@
+{
+  "id": "samo-ecosystem-v1",
+  "status": "local-research-prototype-not-registered-for-production",
+  "hypothesis": "A bounded population with explicit recombination and an unbounded counter-based task stream can sustain evolutionary attempts across extinction episodes; useful predictive capability is not expected or guaranteed.",
+  "goal": "Global aspiration: strive toward error-free prediction of unknown computational processes; this is not a finite falsifiable success claim.",
+  "population": {"minimum": 2, "maximum": 8, "selection": "noisy tournament on current task accuracy", "replacement": "lowest current score; stochastic survival permits regressions", "parents": 2},
+  "recombination": "single-point component crossover of modules, router, search, dialect and memory; offspring is validated by fixed external ABI",
+  "task_arrivals": "counter-based SHA-256 seed derivation per task index; deterministic infinite index stream over registered task families; expanding families requires a new protocol version",
+  "extinction": "when no active individuals remain, emit recolonization event and start a distinct episode from the preserved bounded diversity archive; registered ancestor is fallback only if archive is empty; never claim lineage continuity",
+  "evolutionary_changes": "inheritable search bytecode, predictor modules, routing, dialect semantics, memory and module composition remain mutable under existing VM limits",
+  "external_invariants": ["trusted evaluator", "VM ABI and hard instruction/fuel limits", "CPU/RAM/disk limits", "protocol and evidence recorder", "observer/exporter", "network and filesystem isolation"],
+  "resource_caps": {"max_population": 8, "max_archive_genomes": 512, "max_events_per_segment": 12000, "max_checkpoint_bytes": 48000000, "project_disk_bytes": 700000000, "archive_policy": "stop at a cap; segment via explicit registered archival procedure; no silent pruning"},
+  "measurement": "Record each candidate, parent IDs, mutation and recombination, score, task family/index/seed, cost, acceptance and extinctions. Search continuity is not scientific progress. Report capability separately from infrastructure uptime and attempt counts.",
+  "limits": ["No multi-year soak or Linux production acceptance", "No task-family growth beyond the registered deterministic stream", "No guarantee of non-extinction", "No automatic confirmation set", "One active experimental implementation may still need external supervisor integration"]
+}

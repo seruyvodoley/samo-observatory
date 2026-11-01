@@ -1,0 +1,28 @@
+.observatory-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;contain:strict;overflow:hidden}
+.observatory-webgl{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.scene-live{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);max-width:min(90vw,52rem);padding:.35rem .65rem;color:#17322e;background:rgba(231,238,234,.88);font:500 .72rem/1.4 "Manrope Variable",sans-serif;pointer-events:none}
+.scene-live:empty{display:none}
+.scene-fallback-host{position:fixed;inset:0;z-index:0;pointer-events:none}
+.scene-fallback{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;pointer-events:none;color:#17322e;opacity:.64}
+.scene-fallback svg{width:min(70vw,42rem);height:auto;max-height:65vh;overflow:visible}
+.scene-fallback>span{margin-top:-2rem;font:500 .72rem/1.5 "IBM Plex Mono",monospace}
+.scene-fallback-empty{font:500 .8rem/1.5 "Manrope Variable",sans-serif}
+.spatial-figure{position:relative;z-index:2;isolation:isolate;width:100%;height:clamp(350px,42vw,590px);min-height:350px;margin:0;overflow:hidden;touch-action:pan-y;contain:layout paint;background:#e7eeea}
+.spatial-hitbox{position:absolute;inset:62px 2% 68px;z-index:1;touch-action:none;cursor:grab;outline:none}
+.spatial-hitbox:active{cursor:grabbing}
+.spatial-hitbox:focus-visible{outline:2px solid #17322e;outline-offset:-4px}
+.spatial-tools{position:absolute;inset:0;z-index:2;pointer-events:none}
+.spatial-tools button{position:absolute;right:1rem;top:1rem;width:2.5rem;height:2.5rem;padding:0;border:1px solid rgba(23,50,46,.34);border-radius:50%;background:rgba(231,238,234,.78);color:#17322e;font:500 1rem/1 "Manrope Variable",sans-serif;pointer-events:auto}
+.spatial-tools button:nth-child(2){top:4rem}
+.spatial-tools button:nth-child(3){top:7rem;font-size:1.25rem}
+.spatial-tools button:hover{background:#17322e;color:#f5f7f4}
+.scene-title{position:absolute;top:1.1rem;left:1.3rem;z-index:2;display:grid;gap:.5rem;max-width:68%;pointer-events:none}
+.scene-title>span{font:600 .65rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#65736c}
+.scene-title>strong{font:600 clamp(.9rem,1.3vw,1.2rem)/1.3 "Manrope Variable",sans-serif;overflow-wrap:anywhere}
+.scene-legend{position:absolute;left:1.2rem;bottom:2.45rem;z-index:2;display:flex;flex-wrap:wrap;gap:.45rem .85rem;max-width:86%;pointer-events:none}
+.scene-legend>span{display:inline-flex;align-items:center;gap:.38rem;font:500 .66rem/1.4 "Manrope Variable",sans-serif;color:#465b54}
+.scene-legend i{width:.48rem;height:.48rem;border-radius:50%;box-shadow:0 0 0 2px rgba(231,238,234,.75)}
+.spatial-figure figcaption{position:absolute;right:1.3rem;bottom:.65rem;left:1.3rem;z-index:2;padding-top:.45rem;border-top:1px solid rgba(23,50,46,.14);font:400 .65rem/1.45 "Manrope Variable",sans-serif;color:#65736c;pointer-events:none}
+
+
+.scene-transition-bridge{position:fixed;z-index:1;pointer-events:none;overflow:hidden;background:transparent;contain:layout paint;}

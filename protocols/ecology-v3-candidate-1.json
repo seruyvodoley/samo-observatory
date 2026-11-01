@@ -1,0 +1,25 @@
+{
+  "status": "exploratory pilot, not confirmatory",
+  "protocol": "samo-ecology-v3-candidate-1",
+  "seeds": [
+    31,
+    47,
+    83,
+    109,
+    151
+  ],
+  "fuel_ceiling": 80000,
+  "arms": [
+    "v2",
+    "zero_noop",
+    "dense_only",
+    "v3"
+  ],
+  "selection": ".5 exact + .25 (1-normalized absolute error) + .25 bit accuracy",
+  "zero_edit": "skip code insertion/replacement with value=0; deletion and memory/architecture edits unchanged",
+  "holdout_seed": 988172,
+  "stopping": "stop after first complete step reaching fuel ceiling; record overshoot; equal charged VM fuel target, actual totals and CPU reported",
+  "limits": "No monotonicity, no elite restoration, unchanged offspring search VM, no diagnostic controls seeded into population.",
+  "deployment": "offline only; production v2 unchanged",
+  "followup": "CPU-matched pilot capped at 3 process CPU seconds and 80000 VM fuel per run; see output/zero-audit/cpu-matched/v3-design.json"
+}

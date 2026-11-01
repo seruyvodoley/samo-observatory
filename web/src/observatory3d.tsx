@@ -1,0 +1,275 @@
+import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import {createPortal} from 'react-dom';
+import {useLocation,useNavigate,useSearchParams} from 'react-router-dom';
+import type * as Three from 'three';
+import {gsap} from 'gsap';
+import {ScrollTrigger} from 'gsap/ScrollTrigger';
+import {useEcology,selectObservedForm} from './ecosystem';
+import type {Form} from './instrument';
+import {buildGenomeGeometry,describeInstruction,type GeometryPart,type Vec3} from './genome-geometry';
+import './observatory3d.css';
+
+gsap.registerPlugin(ScrollTrigger);
+type ThreeModule=typeof import('three');
+type SceneMode='population'|'organism'|'lineage'|'trial'|'inventions'|'memory'|'science'|'story-goal'|'story-family'|'story-memory'|'story-limits';
+type AnchorRect={left:number;top:number;width:number;height:number};
+type SceneItem={id:string;hash:string;form:Form;group:Three.Group;model:ReturnType<typeof buildGenomeGeometry>};
+type ViewTarget={x:number;y:number;z:number;tx:number;ty:number;tz:number};
+
+const MODE_BY_PATH:Record<string,SceneMode>={'/':'population','/organism':'organism','/evolution':'lineage','/lab':'trial','/inventions':'inventions','/memory':'memory','/science':'science','/about':'story-goal'};
+const TARGETS:Record<SceneMode,ViewTarget>={
+ population:{x:2.6,y:1.1,z:8.4,tx:0,ty:-.1,tz:0},
+ organism:{x:-2.4,y:.65,z:10.5,tx:0,ty:-.2,tz:0},
+ lineage:{x:.2,y:.8,z:13,tx:0,ty:0,tz:0},
+ trial:{x:.2,y:0,z:7.4,tx:0,ty:.3,tz:0},
+ inventions:{x:0,y:.3,z:10,tx:0,ty:0,tz:0},
+ memory:{x:0,y:-.1,z:9.8,tx:0,ty:-.9,tz:0},
+ science:{x:0,y:.2,z:8.8,tx:0,ty:0,tz:0},
+ 'story-goal':{x:0,y:.3,z:7.5,tx:0,ty:0,tz:0},
+ 'story-family':{x:0,y:.3,z:12.8,tx:0,ty:0,tz:0},
+ 'story-memory':{x:0,y:0,z:5.6,tx:0,ty:-1.55,tz:0},
+ 'story-limits':{x:0,y:.4,z:8.5,tx:0,ty:0,tz:0}
+};
+const PART_COLORS:Record<GeometryPart,number>={module:0x66c7c0,router:0xb9d9dc,search:0xd79b70,dialect:0x7b9fae,memory:0xdcb47a};
+const SHAPE_NAMES=['number','read','arithmetic','stack','branch','random','call','storage'];
+const COMPONENT_NAMES:Record<GeometryPart,string>={module:'Основная программа',router:'Выбор модуля',search:'Создание новых вариантов',dialect:'Правила собственных команд',memory:'Память'};
+const commandEvent='samo:observatory-command';
+
+function command(detail:Record<string,unknown>){window.dispatchEvent(new CustomEvent(commandEvent,{detail}));}
+export function focusGenomeComponent(part:GeometryPart,index=0){command({type:'focus-component',part,index});}
+export function focusGenomeMemory(index=0){command({type:'focus-memory',index});}
+function toVec(T:ThreeModule,v:Vec3){return new T.Vector3(v.x,v.y,v.z);}
+function makeLine(T:ThreeModule,scene:Three.Scene,edges:[Vec3,Vec3][],color:number,opacity:number,dashed=false){
+ if(!edges.length)return null;
+ const pts:number[]=[];for(const [a,b] of edges)pts.push(a.x,a.y,a.z,b.x,b.y,b.z);
+ const geometry=new T.BufferGeometry();geometry.setAttribute('position',new T.Float32BufferAttribute(pts,3));
+ const material=dashed?new T.LineDashedMaterial({color,transparent:true,opacity,dashSize:.07,gapSize:.055,depthWrite:false}):new T.LineBasicMaterial({color,transparent:true,opacity,depthWrite:false});
+ const lines=new T.LineSegments(geometry,material);if(dashed)lines.computeLineDistances();scene.add(lines);return lines;
+}
+function disposeLine(line:Three.LineSegments|null){if(!line)return;gsap.killTweensOf(line.material);line.geometry.dispose();(line.material as Three.Material).dispose();line.removeFromParent();}
+function itemPosition(mode:SceneMode,form:Form,index:number,count:number,graph:Map<string,Vec3>,selectedId?:string):{position:Vec3;scale:number;opacity:number}{
+ if(mode==='population'){
+  const spots=populationSpots(count);
+  return{position:{x:0,y:0,z:0},scale:1.28,opacity:1};
+ }
+ if(mode==='lineage')return{position:graph.get(form.id)||{x:0,y:0,z:0},scale:form.id===selectedId?.3:.15,opacity:.8};
+ if(['inventions','science'].includes(mode))return{position:{x:0,y:0,z:-.4},scale:form.id===selectedId ? .13:.08,opacity:form.id===selectedId ? .42:.2};
+ if(form.id===selectedId)return{position:{x:0,y:0,z:0},scale:1,opacity:1};
+ const fallback:Vec3[]=[{x:-2.7,y:1.5,z:-1.1},{x:2.7,y:1.5,z:-1.1},{x:-2.7,y:-1.5,z:-1.1},{x:2.7,y:-1.5,z:-1.1}];
+ return{position:graph.get(form.id)||fallback[index%Math.max(count,1)],scale:.105,opacity:.4};
+}
+function populationSpots(count:number):Vec3[]{
+ if(count<=4)return[{x:-1.22,y:.72,z:0},{x:1.22,y:.72,z:0},{x:-1.22,y:-.72,z:0},{x:1.22,y:-.72,z:0}].slice(0,Math.max(1,count));
+ return Array.from({length:count},(_,i)=>{const a=i/count*Math.PI*2-Math.PI/2;return{x:Math.cos(a)*1.85,y:Math.sin(a)*1.38,z:0};});
+}
+function makeFormGroup(T:ThreeModule,form:Form,geometries:Three.BufferGeometry[],materials:Three.Material[]):{group:Three.Group;model:ReturnType<typeof buildGenomeGeometry>}{
+ const model=buildGenomeGeometry(form.genome),group=new T.Group();group.name=`genome-${form.id}`;group.userData.formId=form.id;group.userData.genomeHash=form.hash;
+ const owned:Three.Material[]=[];group.userData.ownedMaterials=owned;
+ const byShape=new Map<number,typeof model.instructions>();for(const instr of model.instructions){const bucket=byShape.get(instr.shape)||[];bucket.push(instr);byShape.set(instr.shape,bucket);}
+ for(const [shape,items] of byShape){
+  const material=materials[shape].clone();owned.push(material);const mesh=new T.InstancedMesh(geometries[shape],material,items.length);mesh.name=`${SHAPE_NAMES[shape]} instructions`;mesh.userData.formId=form.id;mesh.userData.items=items;mesh.instanceMatrix.setUsage(T.StaticDrawUsage);
+  const obj=new T.Object3D();
+  items.forEach((item,i)=>{obj.position.set(item.position.x,item.position.y,item.position.z);obj.rotation.set(item.rotation*.31,item.rotation,item.rotation*.57);obj.scale.setScalar(.84);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);const color=new T.Color(PART_COLORS[item.part]);const delta=((item.argument&255)/255-.5)*.06;color.offsetHSL(0,0,delta);mesh.setColorAt(i,color);});
+  mesh.computeBoundingSphere();group.add(mesh);
+ }
+ if(model.memory.length){const material=materials[7].clone();owned.push(material);const mesh=new T.InstancedMesh(geometries[2],material,model.memory.length);mesh.name='memory cells';mesh.userData.formId=form.id;mesh.userData.items=model.memory;mesh.userData.part='memory';const obj=new T.Object3D();model.memory.forEach((item,i)=>{obj.position.copy(toVec(T,item.position));obj.scale.set(.14,.22*item.scale,.14);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);const color=new T.Color(PART_COLORS.memory);color.offsetHSL(0,0,(item.value/65535-.5)*.08);mesh.setColorAt(i,color);});mesh.computeBoundingSphere();group.add(mesh);}
+ const shellGeometry=new T.SphereGeometry(1,20,12,0,Math.PI*1.45,.35,1.6);group.userData.shellGeometry=shellGeometry;
+ for(const c of model.components){if(!c.code.length)continue;const mat=new T.MeshPhysicalMaterial({color:PART_COLORS[c.part],metalness:.55,roughness:.22,transparent:true,opacity:c.part==='dialect'?.38:.52,depthWrite:false,side:T.DoubleSide,clearcoat:1});owned.push(mat);const shell=new T.Mesh(shellGeometry,mat);shell.position.copy(toVec(T,c.center));shell.scale.set(.74,Math.max(.12,Math.ceil(c.code.length/12)*.095),.22);shell.rotation.z=c.part==='dialect'?(c.index-1.5)*.13:0;shell.userData.component={part:c.part,index:c.index};shell.userData.center=c.center;shell.userData.formId=form.id;group.add(shell);}
+ group.traverse(o=>{const m=o as Three.InstancedMesh;if(m.isInstancedMesh&&m.userData.items){m.userData.baseMatrices=Array.from({length:m.count},(_,i)=>{const a=new T.Matrix4();m.getMatrixAt(i,a);return a;});}});
+ const order=makeLine(T,new T.Scene(),model.orderEdges,0x3b5f58,.2);if(order){order.name='bytecode order';order.removeFromParent();group.add(order);}
+ const branches=makeLine(T,new T.Scene(),model.branchEdges,0x827a9a,.62);if(branches){branches.name='jump destinations';branches.removeFromParent();group.add(branches);}
+ const calls=makeLine(T,new T.Scene(),model.dialectCalls.map(x=>[x.from,x.to]),0x647e3a,.65);if(calls){calls.name='CALL to dialect';calls.removeFromParent();group.add(calls);}
+ const beamGeometry=new T.CylinderGeometry(.018,.018,1,6);group.userData.beamGeometry=beamGeometry;const beamMaterial=new T.MeshStandardMaterial({color:0x72bbb8,roughness:.3,metalness:.7});owned.push(beamMaterial);const beams=new T.InstancedMesh(beamGeometry,beamMaterial,model.possibleRoutes.length);beams.userData.component={part:'router',index:0};beams.userData.formId=form.id;const beamObject=new T.Object3D();for(let i=0;i<model.possibleRoutes.length;i++){const [a,b]=model.possibleRoutes[i];const av=toVec(T,a),bv=toVec(T,b),delta=bv.clone().sub(av);beamObject.position.copy(av).add(bv).multiplyScalar(.5);beamObject.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),delta.clone().normalize());beamObject.scale.set(1,delta.length(),1);beamObject.updateMatrix();beams.setMatrixAt(i,beamObject.matrix);}beams.computeBoundingSphere();group.add(beams);
+ const routes=makeLine(T,new T.Scene(),model.possibleRoutes,0x667c75,.24,true);if(routes){routes.name='possible modulo destinations';routes.removeFromParent();group.add(routes);}
+ return{group,model};
+}
+
+class ObservatoryRuntime{
+ readonly T:ThreeModule;readonly renderer:Three.WebGLRenderer;readonly scene:Three.Scene;readonly camera:Three.PerspectiveCamera;readonly main:Three.Group;readonly population:Three.Group;readonly graphGroup:Three.Group;readonly shapeGeometries:Three.BufferGeometry[];readonly shapeMaterials:Three.Material[];
+ readonly canvas:HTMLCanvasElement;private readonly home:HTMLElement;private width=1;private height=1;private anchor:HTMLElement|null=null;private anchorRect:AnchorRect|null=null;private resizeObserver:ResizeObserver|null=null;private itemMap=new Map<string,SceneItem>();private graphForms:Form[]=[];private graphPositions=new Map<string,Vec3>();private graphMesh:Three.InstancedMesh|null=null;private graphEdges:Three.LineSegments|null=null;private graphStubs:Three.LineSegments|null=null;private familyLinks:Three.LineSegments|null=null;private currentRoute='/';private currentMode:SceneMode='population';private selectedId='';private forms:Form[]=[];private activeForms:Form[]=[];private reduced=false;private lost=false;private view:ViewTarget={...TARGETS.population};private moveTween:gsap.core.Tween|null=null;private onState:(s:'ready'|'lost'|'fallback')=>void;private onSelect:(id:string)=>void;private onFocus:(s:string)=>void;private onAnchor:(el:HTMLElement|null)=>void;private focusItem='';private raycaster:Three.Raycaster;private pointer:Three.Vector2;
+ constructor(T:ThreeModule,canvas:HTMLCanvasElement,callbacks:{state:(s:'ready'|'lost'|'fallback')=>void;select:(id:string)=>void;focus:(s:string)=>void;anchor:(el:HTMLElement|null)=>void}){
+  this.T=T;this.canvas=canvas;this.home=canvas.parentElement as HTMLElement;this.onState=callbacks.state;this.onSelect=callbacks.select;this.onFocus=callbacks.focus;this.onAnchor=callbacks.anchor;this.reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  this.renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:!matchMedia('(pointer:coarse)').matches,powerPreference:'low-power',preserveDrawingBuffer:false});
+  this.renderer.setClearColor(0x000000,0);this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,matchMedia('(pointer:coarse)').matches||navigator.hardwareConcurrency<4?1:1.5));this.renderer.setSize(window.innerWidth,window.innerHeight,false);this.renderer.info.autoReset=true;
+  this.scene=new T.Scene();this.camera=new T.PerspectiveCamera(40,1,.1,80);this.camera.position.set(0,0,7.6);
+  this.scene.add(new T.HemisphereLight(0xb1e7ef,0x14212e,2.4));const key=new T.DirectionalLight(0xdafaff,4.2);key.position.set(-4,5,7);this.scene.add(key);const rim=new T.DirectionalLight(0xe0a26f,3.5);rim.position.set(5,-2,-5);this.scene.add(rim);
+  this.main=new T.Group();this.population=new T.Group();this.graphGroup=new T.Group();this.main.add(this.population,this.graphGroup);this.scene.add(this.main);
+  this.shapeGeometries=[new T.BoxGeometry(.12,.075,.038),new T.CylinderGeometry(.055,.07,.15,6),new T.OctahedronGeometry(.1,0),new T.TetrahedronGeometry(.105,0),new T.ConeGeometry(.07,.15,5),new T.IcosahedronGeometry(.095,0),new T.TorusGeometry(.075,.022,4,9),new T.DodecahedronGeometry(.095,0)];
+  this.shapeMaterials=Array.from({length:8},(_,i)=>new T.MeshStandardMaterial({color:0xffffff,roughness:i===6?.19:.27,metalness:i===6?.8:.63,flatShading:true}));
+  this.raycaster=new T.Raycaster();this.pointer=new T.Vector2();this.resize();
+ }
+ private bridge:HTMLElement|null=null;private bridgeTween:gsap.core.Tween|null=null;private pendingAnchor:HTMLElement|null=null;
+ hold(){if(this.reduced||this.bridge)return;const rect=this.anchor?.getBoundingClientRect();if(!rect||rect.width<2||!this.anchor?.isConnected)return;const host=document.createElement('div');host.className='scene-transition-bridge';Object.assign(host.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});(document.querySelector('.atlas-site')||document.body).appendChild(host);this.bridge=host;this.setAnchor(host);host.style.background='transparent';this.canvas.dataset.transition='held';}
+ travel(){if(!this.bridge)this.hold();const bridge=this.bridge;if(!bridge)return;this.bridgeTween?.kill();requestAnimationFrame(()=>{const target=[...document.querySelectorAll<HTMLElement>('[data-space-anchor]')].find(e=>{const r=e.getBoundingClientRect();return r.width>1&&r.bottom>0&&r.top<innerHeight;});if(!target){this.release();return;}const r=target.getBoundingClientRect();this.pendingAnchor=target;this.canvas.dataset.transition='travelling';this.bridgeTween=gsap.to(bridge,{left:r.left,top:Math.max(64,Math.min(r.top,innerHeight-r.height)),width:r.width,height:r.height,duration:1.65,ease:'power3.inOut',onUpdate:()=>{this.resize();},onComplete:()=>this.release()});});}
+ private release(){const host=this.bridge;this.bridge=null;this.bridgeTween=null;this.setAnchor(this.pendingAnchor?.isConnected?this.pendingAnchor:null);this.pendingAnchor=null;host?.remove();this.canvas.dataset.transition='settled';}
+ private resize=()=>{const rect=this.anchor?.getBoundingClientRect();const w=rect&&rect.width>1?rect.width:innerWidth,h=rect&&rect.height>1?rect.height:innerHeight;if(!this.bridge){this.width=w;this.height=h;this.renderer.setSize(w,h,false);}this.camera.aspect=w/h;this.camera.updateProjectionMatrix();this.draw();};
+ private renderRect():AnchorRect|null{
+  if(!this.anchor||!this.anchor.isConnected)return null;const r=this.anchor.getBoundingClientRect();
+  if(r.width<2||r.height<2||r.right<0||r.left>window.innerWidth||r.bottom<0||r.top>window.innerHeight)return null;
+  const a={left:r.left,top:r.top,width:r.width,height:r.height};
+  const rChanged=!this.anchorRect||Math.abs(this.anchorRect.width-a.width)>.5||Math.abs(this.anchorRect.height-a.height)>.5;
+  this.anchorRect=a;
+  if(rChanged){this.camera.aspect=r.width/r.height;this.camera.updateProjectionMatrix();}
+  return a;
+ }
+ setAnchor(el:HTMLElement|null){if(this.bridge&&el!==this.bridge){this.pendingAnchor=el;return;}this.canvas.dataset.anchorBound=el?'yes':'no';if(this.anchor===el){if(el&&this.anchorRect){const r=el.getBoundingClientRect();if(Math.abs(r.width-this.anchorRect.width)<.5&&Math.abs(r.height-this.anchorRect.height)<.5)return;}this.resize();return;}this.resizeObserver?.disconnect();this.anchor=el;this.anchorRect=null;this.onAnchor(el);if(el)el.appendChild(this.canvas);else this.home.appendChild(this.canvas);if(el&&'ResizeObserver'in window){this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(el);}this.resize();}
+ private disposeGroup(group:Three.Group){(group.userData.shellGeometry as Three.BufferGeometry|undefined)?.dispose();(group.userData.beamGeometry as Three.BufferGeometry|undefined)?.dispose();gsap.killTweensOf(group.position);gsap.killTweensOf(group.scale);for(const m of group.userData.ownedMaterials as Three.Material[]||[])gsap.killTweensOf(m);group.traverse(o=>{const mesh=o as Three.InstancedMesh;if(mesh.isInstancedMesh)mesh.dispose();});const lines:Three.LineSegments[]=[];group.traverse(o=>{if((o as Three.LineSegments).isLineSegments)lines.push(o as Three.LineSegments);});lines.forEach(disposeLine);for(const m of group.userData.ownedMaterials as Three.Material[]||[])m.dispose();group.removeFromParent();}
+ private rebuildGraph(forms:Form[]){
+  if(this.graphMesh){this.graphGroup.remove(this.graphMesh);this.graphMesh.geometry.dispose();(this.graphMesh.material as Three.Material).dispose();this.graphMesh=null;}
+  disposeLine(this.graphEdges);disposeLine(this.graphStubs);this.graphEdges=null;this.graphStubs=null;this.graphPositions.clear();this.graphForms=forms.slice(-256);
+  if(!this.graphForms.length)return;const min=Math.min(...this.graphForms.map(x=>x.born)),max=Math.max(...this.graphForms.map(x=>x.born)),span=Math.max(1,max-min),T=this.T;
+  const edges:[Vec3,Vec3][]=[],stubs:[Vec3,Vec3][]=[];const ids=new Set(this.graphForms.map(x=>x.id));
+  this.graphForms.forEach((form,index)=>{const x=((form.born-min)/span)*10-5;const y=(hashNumber(form.id+'-y')-.5)*4.2;const z=(hashNumber(form.id+'-z')-.5)*1.6;const p={x,y,z};this.graphPositions.set(form.id,p);for(const parent of form.parents){if(ids.has(parent)){const q=this.graphPositions.get(parent);if(q)edges.push([q,p]);}else{const direction=hashNumber(parent+form.id)>.5?1:-1;stubs.push([p,{x:p.x-direction*.52,y:p.y+(hashNumber(parent+'stub')-.5)*.56,z:p.z}]);}}});
+  // Parent forms can appear later in `forms` order than a child. Rebuild edges after every position exists.
+  edges.length=0;for(const form of this.graphForms){const p=this.graphPositions.get(form.id)!;for(const parent of form.parents){const q=this.graphPositions.get(parent);if(q)edges.push([q,p]);}}
+  const geometry=new T.SphereGeometry(.12,7,5);const material=new T.MeshStandardMaterial({color:0xffffff,roughness:.55,metalness:.1,flatShading:true});const mesh=new T.InstancedMesh(geometry,material,this.graphForms.length);mesh.name='saved lineage forms';mesh.userData.nodeIds=this.graphForms.map(x=>x.id);const obj=new T.Object3D();
+  this.graphForms.forEach((form,i)=>{const p=this.graphPositions.get(form.id)!;obj.position.set(p.x,p.y,p.z);obj.scale.setScalar(.82);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);mesh.setColorAt(i,new T.Color(form.accepted===false?0x88908b:0x668a7e));});mesh.computeBoundingSphere();this.graphGroup.add(mesh);this.graphMesh=mesh;
+  this.graphEdges=makeLine(T,this.graphGroup as unknown as Three.Scene,edges,0x34594f,.55) as Three.LineSegments|null;
+  this.graphStubs=makeLine(T,this.graphGroup as unknown as Three.Scene,stubs,0x7f8b82,.42,true) as Three.LineSegments|null;
+  this.graphGroup.children.forEach(o=>{if(o===this.graphMesh||o===this.graphEdges||o===this.graphStubs)return;o.removeFromParent();});this.selectGraphNode(this.selectedId);this.draw();
+ }
+ private selectGraphNode(id:string){if(!this.graphMesh)return;const nodeIds=this.graphMesh.userData.nodeIds as string[];const obj=new this.T.Object3D();nodeIds.forEach((node,i)=>{const p=this.graphPositions.get(node)!;obj.position.set(p.x,p.y,p.z);obj.scale.setScalar(node===id?1.65:.82);obj.updateMatrix();this.graphMesh!.setMatrixAt(i,obj.matrix);this.graphMesh!.setColorAt(i,new this.T.Color(node===id?0x9cab34:(this.graphForms.find(f=>f.id===node)?.accepted===false?0x88908b:0x668a7e)));});this.graphMesh.instanceMatrix.needsUpdate=true;if(this.graphMesh.instanceColor)this.graphMesh.instanceColor.needsUpdate=true;}
+ private updateFamilyLinks(){disposeLine(this.familyLinks);this.familyLinks=null;if(!this.activeForms.length)return;const edges:[Vec3,Vec3][]=[];const spots=populationSpots(this.activeForms.length);this.activeForms.forEach((form,i)=>{for(const parent of form.parents){const pi=this.activeForms.findIndex(x=>x.id===parent);if(pi>=0)edges.push([spots[pi],spots[i]]);}});this.familyLinks=makeLine(this.T,this.population as unknown as Three.Scene,edges,0x497f78,.65) as Three.LineSegments|null;}
+ setData(forms:Form[],lineage:Form[],selectedId:string,route:string,activeForms:Form[]){
+  const prior=this.itemMap.get(this.selectedId);this.forms=forms;this.activeForms=activeForms.filter(f=>f.accepted!==false).slice(0,8);const routeChanged=this.currentRoute!==route;this.selectedId=selectedId;if(!routeChanged)this.currentMode=MODE_BY_PATH[route]||'organism';
+  const wanted=new Map<string,Form>();const requested=forms.find(x=>x.id===selectedId);if(requested)wanted.set(requested.id,requested);if(this.currentMode==='population')for(const f of this.activeForms)wanted.set(f.id,f);else{const chosen=forms.find(x=>x.id===selectedId);if(chosen)wanted.set(chosen.id,chosen);for(const f of this.activeForms)wanted.set(f.id,f);}
+  for(const [id,item] of this.itemMap){const f=wanted.get(id);if((!f&&this.itemMap.size>16)|| (f&&f.hash!==item.hash)){this.itemMap.delete(id);gsap.killTweensOf(item.group.scale);this.disposeGroup(item.group);}}
+  for(const [id,form] of wanted){if(this.itemMap.get(id)?.hash===form.hash)continue;const made=makeFormGroup(this.T,form,this.shapeGeometries,this.shapeMaterials);const initial=itemPosition(this.currentMode,form,Math.max(0,this.activeForms.findIndex(x=>x.id===id)),this.activeForms.length,this.graphPositions,selectedId);made.group.position.copy(toVec(this.T,initial.position));made.group.scale.setScalar(initial.scale);this.population.add(made.group);this.itemMap.set(id,{id,hash:form.hash,form,group:made.group,model:made.model});}
+  const keys=lineage.map(x=>`${x.id}:${x.hash}:${x.born}:${x.parents.join(',')}`).join('|');if(keys!==this.graphKey){this.graphKey=keys;this.rebuildGraph(lineage);}
+  this.updateFamilyLinks();this.selectGraphNode(selectedId);if(!routeChanged)this.arrange(true);const next=this.itemMap.get(selectedId);if(prior&&next&&prior.id!==next.id&&!routeChanged&&this.currentMode!=='population')this.morph(prior,next);this.draw();
+ }
+ private morphTween:gsap.core.Tween|null=null;
+ private morph(old:SceneItem,next:SceneItem){
+  if(this.reduced)return;this.morphTween?.progress(1).kill();const key=(x:any)=>x.part==='memory'||x.value!==undefined?'memory:'+x.index:x.part+':'+x.partIndex+':'+x.index;
+  const before=new Map([...old.model.instructions,...old.model.memory].map(x=>[key(x),x]));const after=new Map([...next.model.instructions,...next.model.memory].map(x=>[key(x),x]));const removed:{mesh:Three.InstancedMesh;targets:Three.Matrix4[];items:any[]}[]=[];old.group.traverse(o=>{const m=o as Three.InstancedMesh;if((o as Three.LineSegments).isLineSegments)o.visible=false;if(!m.isInstancedMesh||!m.userData.items)return;const targets=[];for(let i=0;i<m.count;i++){const matrix=new this.T.Matrix4();m.getMatrixAt(i,matrix);targets.push(matrix);}removed.push({mesh:m,targets,items:m.userData.items});});gsap.killTweensOf(old.group.position);gsap.killTweensOf(old.group.scale);old.group.position.set(0,0,0);old.group.scale.setScalar(1);old.group.visible=true;const progress={t:0};const matrix=new this.T.Matrix4(),obj=new this.T.Object3D();
+  const meshes: {mesh:Three.InstancedMesh;targets:Three.Matrix4[];items:any[]}[]=[];next.group.traverse(o=>{const m=o as Three.InstancedMesh;if(!m.isInstancedMesh||!m.userData.items)return;const targets=[];for(let i=0;i<m.count;i++){m.getMatrixAt(i,matrix);targets.push(matrix.clone());}meshes.push({mesh:m,targets,items:m.userData.items});});
+  this.canvas.dataset.morphFrom=old.id;this.canvas.dataset.morphTo=next.id;
+  this.morphTween=gsap.to(progress,{t:1,duration:1.15,ease:'power3.inOut',onUpdate:()=>{for(const {mesh,targets,items} of meshes){items.forEach((item,i)=>{targets[i].decompose(obj.position,obj.quaternion,obj.scale);const prior=before.get(key(item));if(prior){obj.position.lerp(toVec(this.T,prior.position),1-progress.t);}else obj.scale.multiplyScalar(progress.t);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);});mesh.instanceMatrix.needsUpdate=true;mesh.frustumCulled=false;}for(const {mesh,targets,items} of removed){items.forEach((item,i)=>{targets[i].decompose(obj.position,obj.quaternion,obj.scale);const same=after.get(key(item)) as any;const retained=same&&same.opcode===item.opcode&&same.argument===item.argument&&same.value===item.value;obj.scale.multiplyScalar(retained?0:1-progress.t);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);});mesh.instanceMatrix.needsUpdate=true;}this.canvas.dataset.morphProgress=String(progress.t);this.draw();},onComplete:()=>{this.canvas.dataset.morphProgress='1';old.group.visible=false;this.itemMap.delete(old.id);this.disposeGroup(old.group);}});
+ }
+ private graphKey='';
+ private arrange(animate:boolean){
+  const targetById=new Map<string,ReturnType<typeof itemPosition>>();const count=this.itemMap.size;let i=0;
+  for(const item of this.itemMap.values())targetById.set(item.id,itemPosition(this.currentMode,item.form,i++,count,this.graphPositions,this.selectedId));
+  const lineage=this.currentMode==='lineage';this.graphGroup.visible=true;if(animate&&!this.reduced){for(const child of this.graphGroup.children){const m=(child as Three.Mesh).material as Three.Material&{opacity:number};if(!m)continue;gsap.killTweensOf(m);if(lineage)m.opacity=0;m.transparent=true;gsap.to(m,{opacity:lineage?(child===this.graphMesh?1:.55):0,duration:.85,delay:lineage?.18:0,onUpdate:()=>this.draw(),onComplete:()=>{if(this.currentMode!=='lineage')this.graphGroup.visible=false;this.draw();}});}}else this.graphGroup.visible=lineage;
+  if(this.familyLinks)this.familyLinks.visible=this.currentMode==='population';
+  for(const item of this.itemMap.values()){
+   item.group.visible=this.currentMode==='lineage'||item.id===this.selectedId;const t=targetById.get(item.id)!;const end={x:t.position.x,y:t.position.y,z:t.position.z,s:t.scale,o:t.opacity};const materialTargets:Three.Material[]=[];item.group.traverse(obj=>{if((obj as Three.InstancedMesh).isInstancedMesh){const mat=(obj as Three.InstancedMesh).material as Three.Material;if(!materialTargets.includes(mat))materialTargets.push(mat);}});
+   const apply=(o:number)=>{for(const m of materialTargets){const mat=m as Three.Material&{opacity?:number;transparent?:boolean;depthWrite?:boolean};mat.opacity=o;mat.transparent=o<1;mat.depthWrite=o>=1;mat.needsUpdate=true;}};
+   if(!animate||this.reduced){item.group.position.set(end.x,end.y,end.z);item.group.scale.setScalar(end.s);apply(end.o);}else{
+    gsap.to(item.group.position,{x:end.x,y:end.y,z:end.z,duration:.82,ease:'power3.inOut',overwrite:true,onUpdate:()=>this.draw()});
+    gsap.to(item.group.scale,{x:end.s,y:end.s,z:end.s,duration:.82,ease:'power3.inOut',overwrite:true,onUpdate:()=>this.draw()});
+    for(const m of materialTargets)gsap.to(m as Three.Material&{opacity?:number;transparent?:boolean;depthWrite?:boolean},{opacity:end.o,duration:.62,ease:'power2.inOut',overwrite:true,onUpdate:()=>{const mat=m as Three.Material&{opacity?:number;transparent?:boolean;depthWrite?:boolean};mat.transparent=(mat.opacity||0)<1;mat.depthWrite=(mat.opacity||0)>=1;this.draw();}});
+   }
+  }
+ }
+ setRoute(route:string,animate:boolean){if(animate)this.travel();this.currentRoute=route;this.currentMode=MODE_BY_PATH[route]||'organism';gsap.killTweensOf(this.main.position);if(animate&&!this.reduced)gsap.to(this.main.position,{x:0,y:0,z:0,duration:1.2,ease:'power3.inOut',onUpdate:()=>this.draw()});else this.main.position.set(0,0,0);this.arrange(animate);this.unfold(this.currentMode==='organism'||this.currentMode==='memory',animate);this.goTo(this.currentMode,animate);this.draw();}
+ private unfoldTween:gsap.core.Tween|null=null;
+ private unfold(open:boolean,animate:boolean){this.unfoldTween?.kill();const item=this.itemMap.get(this.selectedId);if(!item)return;const state={t:Number(item.group.userData.unfold||0)};gsap.killTweensOf(item.group.userData);const end=open?.48:0;const apply=()=>{item.group.userData.unfold=state.t;const obj=new this.T.Object3D();item.group.traverse(o=>{const m=o as Three.InstancedMesh;if(m.isInstancedMesh&&m.userData.items){const items=m.userData.items as any[];const base=m.userData.baseMatrices as Three.Matrix4[];items.forEach((it,i)=>{base[i].decompose(obj.position,obj.quaternion,obj.scale);const center=it.value!==undefined?{x:0,y:-1.8,z:0}:item.model.components.find(c=>c.part===it.part&&c.index===it.partIndex)?.center;if(center)obj.position.addScaledVector(toVec(this.T,center),state.t);obj.updateMatrix();m.setMatrixAt(i,obj.matrix);});m.instanceMatrix.needsUpdate=true;m.frustumCulled=false;}else if(o.userData.center){const center=o.userData.center as Vec3;o.position.copy(toVec(this.T,center)).multiplyScalar(1+state.t);}});this.draw();};if(!animate||this.reduced){state.t=end;apply();}else this.unfoldTween=gsap.to(state,{t:end,duration:1.55,ease:'power3.inOut',onUpdate:apply});}
+ goTo(mode:SceneMode,animate=true){this.reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;this.currentMode=mode;const t=TARGETS[mode]||TARGETS.organism;const target={...t};if(innerWidth<=640){target.z=mode==='population'?9.7:mode==='organism'?11.4:mode==='memory'?12.2:Math.max(target.z,10.5);target.x*=.45;}if(!animate||this.reduced){this.view={...target};this.camera.position.set(target.x,target.y,target.z);this.camera.lookAt(target.tx,target.ty,target.tz);this.draw();return;}this.moveTween?.kill();const from={x:this.camera.position.x,y:this.camera.position.y,z:this.camera.position.z,tx:this.view.tx,ty:this.view.ty,tz:this.view.tz};this.view=from;this.moveTween=gsap.to(from,{...target,duration:1.65,ease:'power3.inOut',overwrite:true,onUpdate:()=>{const bend=Math.sin(this.moveTween?.progress()!*Math.PI||0);this.camera.position.set(from.x+bend*1.8,from.y+bend*1.05,from.z-bend*1.3);this.camera.lookAt(from.tx,from.ty,from.tz);this.draw();},onComplete:()=>{this.view={...target};}});}
+ private frame=0;
+ draw(){if(this.frame)return;this.frame=requestAnimationFrame(()=>{this.frame=0;this.renderNow();});}
+ private renderNow(){if(this.lost){this.canvas.dataset.drawStage='lost';return;}const r=this.renderRect();this.renderer.setScissorTest(false);if(!r){this.renderer.setClearColor(0x000000,0);this.renderer.clear(true,true,true);this.canvas.dataset.drawStage='no-anchor';return;}if(r.width<2||r.height<2){this.canvas.dataset.drawStage='offscreen';return;}this.renderer.setClearColor(0x000000,0);this.renderer.clear(true,true,true);this.renderer.setViewport(0,0,this.width,this.height);this.renderer.render(this.scene,this.camera);this.canvas.dataset.camera=JSON.stringify(this.camera.position.toArray());this.canvas.dataset.cameraTarget=JSON.stringify([this.view.tx,this.view.ty,this.view.tz]);this.canvas.dataset.rotation=JSON.stringify([this.main.rotation.x,this.main.rotation.y]);this.canvas.dataset.expansion=String(this.itemMap.get(this.selectedId)?.group.userData.unfold||0);this.canvas.dataset.mode=this.currentMode;this.canvas.dataset.selected=this.selectedId;this.canvas.dataset.drawCalls=String(this.renderer.info.render.calls);this.canvas.dataset.triangles=String(this.renderer.info.render.triangles);this.canvas.dataset.drawStage='rendered';}
+ setPointer(x:number,y:number,focus=false){const rect=this.anchor?.getBoundingClientRect();if(!rect||rect.width<=0||rect.height<=0)return;this.pointer.set(((x-rect.left)/rect.width)*2-1,1-((y-rect.top)/rect.height)*2);this.raycaster.setFromCamera(this.pointer,this.camera);const targets:Three.Object3D[]=[...this.population.children];if(this.currentMode==='lineage'&&this.graphMesh)targets.push(this.graphMesh);const hits=this.raycaster.intersectObjects(targets,true);if(!hits.length)return;
+  const hit=hits[0],id=String(hit.object.userData.formId||'');if(hit.object===this.graphMesh&&hit.instanceId!=null){const picked=this.graphMesh.userData.nodeIds[hit.instanceId] as string;if(picked){this.hold();this.onSelect(picked);};return;}
+  if(id){if(this.currentMode==='population'&&this.activeForms.some(f=>f.id===id)){this.onSelect(id);return;}
+   if(hit.object.userData.component){const c=hit.object.userData.component;this.onFocus(COMPONENT_NAMES[c.part as GeometryPart]+', компонент '+(c.index+1));if(focus)this.focusComponent(c.part,c.index);return;}const mesh=hit.object as Three.InstancedMesh;const item=hit.instanceId==null?null:(mesh.userData.items||[])[hit.instanceId];if(item){const name=COMPONENT_NAMES[item.part as GeometryPart]||'Компонент программы';const detail=item.opcode===undefined?`${name}, ячейка ${item.index+1}: ${item.value}`:`${name}, команда ${item.index+1}: ${describeInstruction(item.opcode,item.argument)}`;this.onFocus(detail);if(focus){if(item.value!==undefined)this.focusMemory(item.index);else this.focusComponent(item.part,item.partIndex||0);}}
+  }
+ }
+ zoom(amount:number){this.moveTween?.kill();const target=new this.T.Vector3(this.view.tx,this.view.ty,this.view.tz);const direction=this.camera.position.clone().sub(target);const next=Math.max(.25,Math.min(28,direction.length()*Math.exp(amount*.2)));direction.setLength(next);this.camera.position.copy(target).add(direction);this.camera.lookAt(target);this.view={...this.view,x:this.camera.position.x,y:this.camera.position.y,z:this.camera.position.z};this.draw();}
+ focusComponent(part:GeometryPart,index:number){
+ const item=this.itemMap.get(this.selectedId);if(!item)return;
+ const component=item.model.components.find(x=>x.part===part&&x.index===index);if(!component&&part!=='memory')return;
+ this.moveTween?.kill();this.unfoldTween?.kill();gsap.killTweensOf(this.main.position);gsap.killTweensOf(item.group.position);gsap.killTweensOf(item.group.scale);
+ this.scene.updateMatrixWorld(true);const box=new this.T.Box3();const matrix=new this.T.Matrix4();const p=new this.T.Vector3();
+ item.group.traverse(o=>{const mesh=o as Three.InstancedMesh;if(!mesh.isInstancedMesh||!mesh.userData.items)return;const items=mesh.userData.items as any[];items.forEach((it,i)=>{const chosen=part==='memory'?it.value!==undefined:it.part===part&&it.partIndex===index;const color=new this.T.Color(chosen?0xffe0a8:PART_COLORS[(it.value!==undefined?'memory':it.part) as GeometryPart]);mesh.setColorAt(i,color);if(chosen){mesh.getMatrixAt(i,matrix);p.setFromMatrixPosition(matrix);mesh.localToWorld(p);box.expandByPoint(p);}});if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;});
+ if(box.isEmpty()&&(component?.code.length===0||(part==='memory'&&!item.model.memory.length))){this.canvas.dataset.focusComponent=`empty:${part}:${index}`;delete this.canvas.dataset.focusDistance;this.reset();return;}
+ if(box.isEmpty()){const c=component?.center||{x:0,y:-1.8,z:0};p.copy(toVec(this.T,c)).multiplyScalar(1+Number(item.group.userData.unfold||0));item.group.localToWorld(p);box.expandByPoint(p);}
+ const point=box.getCenter(new this.T.Vector3()),size=box.getSize(new this.T.Vector3());const halfFov=this.camera.fov*Math.PI/360;const distance=Math.max(.85,Math.max(size.y+.28,(size.x+.28)/this.camera.aspect)/(2*Math.tan(halfFov)*.72)+size.z*.5);
+ const direction=this.camera.position.clone().sub(new this.T.Vector3(this.view.tx,this.view.ty,this.view.tz)).normalize();const eye=point.clone().addScaledVector(direction,distance);const target={x:eye.x,y:eye.y,z:eye.z,tx:point.x,ty:point.y,tz:point.z};const state={x:this.camera.position.x,y:this.camera.position.y,z:this.camera.position.z,tx:this.view.tx,ty:this.view.ty,tz:this.view.tz};this.view=state;
+ this.canvas.dataset.focusComponent=part+':'+index;this.canvas.dataset.focusDistance=String(distance);
+ const apply=()=>{this.camera.position.set(state.x,state.y,state.z);this.camera.lookAt(state.tx,state.ty,state.tz);this.draw();};
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){Object.assign(state,target);apply();}else this.moveTween=gsap.to(state,{...target,duration:.8,ease:'power2.inOut',onUpdate:apply});
+ }
+ focusMemory(index=0){
+ const item=this.itemMap.get(this.selectedId),cell=item?.model.memory[index];if(!item||!cell)return;
+ this.moveTween?.kill();this.unfoldTween?.kill();gsap.killTweensOf(this.main.position);
+ this.scene.updateMatrixWorld(true);const point=toVec(this.T,cell.position);point.y-=1.8*Number(item.group.userData.unfold||0);item.group.localToWorld(point);
+ const direction=this.camera.position.clone().sub(new this.T.Vector3(this.view.tx,this.view.ty,this.view.tz)).normalize();const distance=innerWidth<=640?.85:.65;const eye=point.clone().addScaledVector(direction,distance);
+ const target={x:eye.x,y:eye.y,z:eye.z,tx:point.x,ty:point.y,tz:point.z};const state={x:this.camera.position.x,y:this.camera.position.y,z:this.camera.position.z,tx:this.view.tx,ty:this.view.ty,tz:this.view.tz};this.view=state;
+ item.group.traverse(o=>{const mesh=o as Three.InstancedMesh;if(mesh.isInstancedMesh&&mesh.userData.part==='memory'){const matrix=new this.T.Matrix4();const base=mesh.userData.baseMatrices as Three.Matrix4[];const obj=new this.T.Object3D();for(let i=0;i<mesh.count;i++){base[i].decompose(obj.position,obj.quaternion,obj.scale);obj.position.y-=1.8*Number(item.group.userData.unfold||0);if(i===index)obj.scale.multiplyScalar(2.5);obj.updateMatrix();matrix.copy(obj.matrix);mesh.setMatrixAt(i,matrix);mesh.setColorAt(i,new this.T.Color(i===index?0xffe0a8:PART_COLORS.memory));}mesh.instanceMatrix.needsUpdate=true;mesh.frustumCulled=false;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;}});
+ this.canvas.dataset.memoryCell=String(index+1);this.canvas.dataset.memoryValue=String(cell.value);
+ const apply=()=>{this.camera.position.set(state.x,state.y,state.z);this.camera.lookAt(state.tx,state.ty,state.tz);this.draw();};
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){Object.assign(state,target);apply();}else this.moveTween=gsap.to(state,{...target,duration:.75,ease:'power2.inOut',onUpdate:apply});
+ }
+ rotate(dx:number,dy:number){this.moveTween?.kill();gsap.to(this.main.rotation,{y:this.main.rotation.y+dx*.007,x:Math.max(-.9,Math.min(.9,this.main.rotation.x+dy*.006)),duration:.24,ease:'power2.out',overwrite:true,onUpdate:()=>this.draw()});}
+ reset(){gsap.killTweensOf(this.camera.position);gsap.killTweensOf(this.main.position);this.main.rotation.set(0,0,0);this.main.position.set(0,0,0);this.goTo(this.currentMode,false);this.draw();}
+ resizeNow(){this.resize();}
+ dispose(){this.unfoldTween?.kill();cancelAnimationFrame(this.frame);this.morphTween?.kill();this.scene.traverse(o=>{gsap.killTweensOf(o.position);gsap.killTweensOf(o.scale);const m=(o as Three.Mesh).material;if(m)for(const mat of Array.isArray(m)?m:[m])gsap.killTweensOf(mat);});this.bridgeTween?.kill();this.bridge?.remove();this.moveTween?.kill();this.resizeObserver?.disconnect();this.canvas.removeEventListener('webglcontextlost',this.contextLost,false);this.canvas.removeEventListener('webglcontextrestored',this.contextRestored,false);if(!this.home.contains(this.canvas))this.home.appendChild(this.canvas);this.onAnchor(null);const geometries=new Set<Three.BufferGeometry>();const materials=new Set<Three.Material>();this.scene.traverse(obj=>{const m=obj as Three.Mesh;if(m.geometry)geometries.add(m.geometry);const material=m.material;if(material)for(const x of Array.isArray(material)?material:[material])materials.add(x);});for(const item of this.itemMap.values())this.disposeGroup(item.group);this.itemMap.clear();geometries.forEach(x=>x.dispose());materials.forEach(x=>x.dispose());this.renderer.dispose();}
+ private readonly contextLost=(e:Event)=>{e.preventDefault();this.lost=true;this.onState('lost');};
+ private readonly contextRestored=()=>{this.lost=false;this.renderer.setSize(this.width,this.height,false);this.onState('ready');this.draw();};
+ attachContextEvents(){this.canvas.addEventListener('webglcontextlost',this.contextLost,false);this.canvas.addEventListener('webglcontextrestored',this.contextRestored,false);}
+}
+function hashNumber(input:string){let h=2166136261;for(let i=0;i<input.length;i++){h^=input.charCodeAt(i);h=Math.imul(h,16777619);}return(h>>>0)/4294967295;}
+
+function SceneFallback({form}:{form?:Form}){
+ if(!form)return <div className="scene-fallback scene-fallback-empty" aria-hidden="true">Объёмный просмотр сейчас недоступен</div>;
+ const model=buildGenomeGeometry(form.genome);const project=(p:Vec3)=>({x:280+(p.x+p.z*.32)*76,y:164+(p.y-p.z*.08)*68});const colors:Record<GeometryPart,string>={module:'#417b70',router:'#30584f',search:'#857ba0',dialect:'#87a49a',memory:'#98a827'};
+ return <div className="scene-fallback" aria-label={`Схема программы ${form.id}: ${model.components.length} частей, ${model.instructions.length} команд, ${model.memory.length} значений памяти`}>
+  <svg viewBox="0 0 560 340" role="img" aria-label={`Двумерная проекция того же генома: ${model.components.length} частей, ${model.instructions.length} команд, ${model.memory.length} чисел памяти.`}>
+   <g fill="none" stroke="#71847a" strokeWidth=".8" opacity=".35">{model.orderEdges.slice(0,500).map(([a,b],i)=>{const p=project(a),q=project(b);return <line key={`o${i}`} x1={p.x} y1={p.y} x2={q.x} y2={q.y}/>})}</g>
+   <g fill="none" stroke="#827a9a" strokeWidth="1" opacity=".6">{model.branchEdges.slice(0,300).map(([a,b],i)=>{const p=project(a),q=project(b);return <line key={`b${i}`} x1={p.x} y1={p.y} x2={q.x} y2={q.y}/>})}</g>
+   <g>{model.instructions.map((ins,i)=>{const p=project(ins.position);return <circle key={i} cx={p.x} cy={p.y} r={1.4+ins.shape*.08} fill={colors[ins.part]}><title>{`${ins.part} ${ins.partIndex+1}, ${describeInstruction(ins.opcode,ins.argument)}`}</title></circle>})}</g>
+   <g fill="#98a827">{model.memory.map((item,i)=>{const p=project(item.position);return <rect key={i} x={p.x-1.5} y={p.y-3} width="3" height={3+item.scale*4} opacity=".75"><title>{`Ячейка ${i+1}: ${item.value}`}</title></rect>})}</g>
+  </svg><span>Двумерная проекция сохранённого генома · {form.id}</span>
+ </div>;
+}
+
+export function SpaceAnchor({scene,label,children}:{scene:string;label:string;children?:ReactNode}){
+ const [interacting,setInteracting]=useState(false);const activate=useRef<HTMLButtonElement>(null);
+ const hitbox=useRef<HTMLDivElement>(null);const pointers=useRef(new Map<number,{x:number;y:number}>());const distance=useRef(0);
+ useEffect(()=>{const el=hitbox.current;if(!el)return;const wheel=(e:WheelEvent)=>{if(!interacting)return;e.preventDefault();command({type:'zoom',amount:Math.max(-.8,Math.min(.8,e.deltaY*.004))});};el.addEventListener('wheel',wheel,{passive:false});return()=>el.removeEventListener('wheel',wheel);},[interacting]);
+ const drag=useRef<{x:number;y:number;lastX:number;lastY:number;dragged:boolean}|null>(null);
+ return <figure className="spatial-figure" data-interacting={interacting} aria-label={label}>
+  <div className="scene-heading">{children}</div>
+  <div className="spatial-viewport" data-space-anchor data-space-scene={scene}>
+  <div ref={hitbox} className="spatial-hitbox" onDoubleClick={e=>command({type:'pick',x:e.clientX,y:e.clientY,focus:true})} role="group" aria-label="Интерактивная объёмная сцена" tabIndex={interacting?0:-1} aria-hidden={!interacting}
+   onPointerDown={e=>{if(!interacting||e.button!==0)return;pointers.current.set(e.pointerId,{x:e.clientX,y:e.clientY});distance.current=0;drag.current={x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};e.currentTarget.setPointerCapture(e.pointerId);}}
+   onPointerMove={e=>{if(pointers.current.has(e.pointerId))pointers.current.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.current.size===2){const [a,b]=[...pointers.current.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(distance.current)command({type:'zoom',amount:(distance.current-d)*.025});distance.current=d;return;}const p=drag.current;if(!p)return;const dx=e.clientX-p.lastX,dy=e.clientY-p.lastY;if(Math.abs(e.clientX-p.x)+Math.abs(e.clientY-p.y)>6)p.dragged=true;if(p.dragged){command({type:'rotate',dx,dy});p.lastX=e.clientX;p.lastY=e.clientY;}}}
+   onPointerUp={e=>{pointers.current.delete(e.pointerId);distance.current=0;const p=drag.current;if(p&&!p.dragged)command({type:'pick',x:e.clientX,y:e.clientY});drag.current=null;}}
+   onPointerCancel={()=>{drag.current=null;pointers.current.clear();distance.current=0;}}
+   onKeyDown={e=>{const dx= e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0,dy=e.key==='ArrowUp'?-9:e.key==='ArrowDown'?9:0;if(dx||dy){e.preventDefault();command({type:'rotate',dx,dy});}else if(e.key==='+'||e.key==='='){e.preventDefault();command({type:'zoom',amount:-.8});}else if(e.key==='-'){e.preventDefault();command({type:'zoom',amount:.8});}else if(e.key==='Home'){e.preventDefault();command({type:'reset'});}else if(e.key==='Escape'){setInteracting(false);pointers.current.clear();activate.current?.focus();}}}>
+   <span className="sr-only">Перетаскивайте, чтобы вращать. Стрелки вращают; плюс и минус меняют масштаб; Home сбрасывает вид. Выберите элемент мышью, чтобы прочитать его назначение.</span>
+  </div>
+  </div>
+  <div className="scene-toolbar"><button ref={activate} className="scene-activate" type="button" aria-pressed={interacting} onClick={()=>{setInteracting(v=>!v);pointers.current.clear();drag.current=null;}}>{interacting?'Завершить осмотр':'Осмотреть модель'}</button>
+  {interacting&&<div className="spatial-tools" role="group" aria-label="Масштаб модели"><button type="button" title="Приблизить" aria-label="Приблизить" onClick={()=>command({type:'zoom',amount:-.8})}>+</button><button type="button" title="Отдалить" aria-label="Отдалить" onClick={()=>command({type:'zoom',amount:.8})}>−</button><button type="button" title="Исходный вид" aria-label="Вернуть исходный вид" onClick={()=>command({type:'reset'})}>↺</button></div>}</div>
+ </figure>;
+}
+
+export function Observatory3D(){
+ const canvasRef=useRef<HTMLCanvasElement>(null);const runtime=useRef<ObservatoryRuntime|null>(null);const stateRef=useRef<(s:'ready'|'lost'|'fallback')=>void>(()=>{});const selectRef=useRef<(id:string)=>void>(()=>{});const focusRef=useRef<(s:string)=>void>(()=>{});const [status,setStatus]=useState<'loading'|'ready'|'fallback'|'lost'>('loading');const [focus,setFocus]=useState('');const [sceneHost,setSceneHost]=useState<HTMLElement|null>(null);const {data,forms,lineage}=useEcology();const location=useLocation();const navigate=useNavigate();const [params,setParams]=useSearchParams();const routeId=location.pathname.match(/^\/organism\/([^/]+)$/)?.[1];const selected=selectObservedForm(data,forms,params.get('eco')||routeId,location.pathname);const selectedId=selected?.id||'';const activeKey=(data?.population||[]).map(x=>`${x.id}:${x.hash}:${x.accepted}:${x.parents.join(',')}`).join('|');const lineageKey=lineage.map(x=>`${x.id}:${x.hash}:${x.born}:${x.parents.join(',')}:${x.accepted}`).join('|');
+ stateRef.current=setStatus;selectRef.current=id=>{if(location.pathname==='/evolution'){navigate(`/organism?eco=${encodeURIComponent(id)}`);return;}const next=new URLSearchParams(window.location.search);next.set('eco',id);setParams(next,{replace:true});};focusRef.current=setFocus;
+ const latest=useRef({forms,lineage,selectedId,route:location.pathname,activeForms:data?.population||[]});latest.current={forms,lineage,selectedId,route:location.pathname,activeForms:data?.population||[]};
+ useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;let stopped=false;let instance:ObservatoryRuntime|null=null;setStatus('loading');void import('three').then(T=>{if(stopped)return;try{instance=new ObservatoryRuntime(T,canvas,{state:s=>stateRef.current(s),select:id=>selectRef.current(id),focus:s=>focusRef.current(s),anchor:setSceneHost});instance.attachContextEvents();runtime.current=instance;const current=latest.current;instance.setData(current.forms,current.lineage,current.selectedId,current.route,current.activeForms);instance.setRoute(current.route,false);setStatus('ready');requestAnimationFrame(()=>{if(stopped||runtime.current!==instance)return;const first=[...document.querySelectorAll<HTMLElement>('[data-space-anchor]')].find(el=>{const b=el.getBoundingClientRect();return b.width>2&&b.height>2&&b.bottom>0&&b.top<innerHeight;});if(first)instance?.setAnchor(first);});}catch{setStatus('fallback');}}).catch(()=>setStatus('fallback'));return()=>{stopped=true;if(instance){instance.dispose();runtime.current=null;}};},[]);
+ useLayoutEffect(()=>()=>runtime.current?.hold(),[location.pathname]);
+ useEffect(()=>{const hold=()=>runtime.current?.hold();window.addEventListener('samo:transition-hold',hold);return()=>window.removeEventListener('samo:transition-hold',hold);},[]);
+ useLayoutEffect(()=>{runtime.current?.setData(forms,lineage,selectedId,location.pathname,data?.population||[]);},[activeKey,lineageKey,selectedId,location.pathname]);
+ const previousPath=useRef(location.pathname);
+ useLayoutEffect(()=>{const prior=previousPath.current;previousPath.current=location.pathname;if(prior!==location.pathname)runtime.current?.setRoute(location.pathname,true);},[location.pathname,location.key]);
+ useLayoutEffect(()=>{
+  const r=runtime.current;if(!r)return;const anchors=[...document.querySelectorAll<HTMLElement>('[data-space-anchor]')];let scheduled=false;
+  const choose=()=>{scheduled=false;let best:HTMLElement|null=null,score=0;for(const el of anchors){if(!el.isConnected)continue;const b=el.getBoundingClientRect(),area=b.width*b.height;if(area<1)continue;const visibleWidth=Math.max(0,Math.min(innerWidth,b.right)-Math.max(0,b.left)),visibleHeight=Math.max(0,Math.min(innerHeight,b.bottom)-Math.max(0,b.top));const ratio=visibleWidth*visibleHeight/area;if(ratio>score){score=ratio;best=el;}}r.setAnchor(best);};
+  const schedule=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(choose);};
+  const observer=new IntersectionObserver(schedule,{threshold:[0,.08,.2,.4,.65]});anchors.forEach(a=>observer.observe(a));schedule();window.addEventListener('scroll',schedule,{passive:true});
+  return()=>{observer.disconnect();window.removeEventListener('scroll',schedule);};
+ },[location.pathname,location.key,status,activeKey]);
+ useEffect(()=>{
+  const r=runtime.current;if(!r)return;const onCommand=(event:Event)=>{const d=(event as CustomEvent<Record<string,unknown>>).detail;if(d.type==='zoom')r.zoom(Number(d.amount)||0);else if(d.type==='reset')r.reset();else if(d.type==='rotate')r.rotate(Number(d.dx)||0,Number(d.dy)||0);else if(d.type==='pick')r.setPointer(Number(d.x)||0,Number(d.y)||0,Boolean(d.focus));else if(d.type==='focus-component'&&['module','router','search','dialect','memory'].includes(String(d.part)))r.focusComponent(d.part as GeometryPart,Number(d.index)||0);else if(d.type==='focus-memory')r.focusMemory(Number(d.index)||0);};
+  const onResize=()=>r.resizeNow();
+  window.addEventListener(commandEvent,onCommand);window.addEventListener('resize',onResize);
+  return()=>{window.removeEventListener(commandEvent,onCommand);window.removeEventListener('resize',onResize);};
+ },[status]);
+ useEffect(()=>{const r=runtime.current;if(!r||location.pathname!=='/about')return;const targets=[...document.querySelectorAll<HTMLElement>('[data-story-scene]')];if(!targets.length)return;const triggers=targets.map(el=>ScrollTrigger.create({trigger:el,start:'top 72%',end:'bottom 28%',onEnter:()=>window.location.pathname==='/about'&&r.goTo(el.dataset.storyScene as SceneMode||'story-goal',true),onEnterBack:()=>window.location.pathname==='/about'&&r.goTo(el.dataset.storyScene as SceneMode||'story-goal',true)}));const refresh=requestAnimationFrame(()=>ScrollTrigger.refresh());return()=>{cancelAnimationFrame(refresh);triggers.forEach(t=>t.kill());};},[location.pathname,location.key,status]);
+ const fallbackForm=selected||lineage[0];const fallback=status!=='ready'?<SceneFallback form={fallbackForm}/>:null;
+ return <><div className="observatory-canvas"><canvas ref={canvasRef} className="observatory-webgl" aria-hidden="true" data-renderer-state={status} data-genome-id={selected?.id||''} data-genome-hash={selected?.hash||''}/></div>{fallback&&(sceneHost?createPortal(fallback,sceneHost):<div className="scene-fallback-host">{fallback}</div>)}<div className="scene-live" role="status" aria-live="polite">{status==='loading'?'Готовим объёмный вид генома.':status==='fallback'?'Объёмный вид недоступен; показана схема того же генома.':status==='lost'?'3D-сцена временно приостановлена; данные и их текстовое представление доступны.':focus}</div></>;
+}

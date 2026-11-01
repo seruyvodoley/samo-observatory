@@ -1,0 +1,23 @@
+{
+  "counts": {
+    "attempts": 1014,
+    "sterile": 30,
+    "candidates": 984,
+    "accepted": 984,
+    "zero_accuracy": 979,
+    "nonzero_accuracy": 5,
+    "nonzero_delta": 2
+  },
+  "bit_accuracy_range": [
+    0.0,
+    1.0
+  ],
+  "mae_range": [
+    0.0,
+    1.0
+  ],
+  "distinct_search_operators": 85,
+  "genotype_diversity": 4,
+  "common_probe_behavior_diversity": 1,
+  "interpretation": "With exact-match ties delta=0, Metropolis acceptance is 1. This is protocol-driven neutral drift, not evidence of useful improvement. Dense diagnostic metrics are not a tested replacement selector; no v3 superiority claim or live selection change."
+}

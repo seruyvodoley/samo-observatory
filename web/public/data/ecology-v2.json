@@ -1,0 +1,16 @@
+{
+  "id": "samo-ecology-v2",
+  "version": 2,
+  "scope": "Continuous bounded 16-bit VM ecology; aspirational universal prediction remains unattainable, not a success claim.",
+  "population": {"founders":4,"max":8,"selection":"two-way tournament on a fresh training process","replacement":"random incumbent with Metropolis temperature 0.08; deleterious transitions permitted","recombination_probability":0.35},
+  "inheritance":"Mutable search bytecode produces edits; optional two-parent component crossover inherits predictor modules, router, search, dialect semantics and memory; fixed external VM ABI.",
+  "extinction":"No surviving population: register a new episode with four founders. Each founder independently samples bounded FIFO diversity with probability 0.5, otherwise the registered ancestor mutation generator. Never rank founders by past fitness; never continue an extinct identity.",
+  "task_stream":"SHA-256(master private seed, unbounded integer index), round-robin registered families constant/arithmetic/periodic/recurrence/switch/random. Fresh parameters at each attempt, 12 observed values and 12 one-step prequential trials. This is unbounded arrival, not a claim of unbounded family novelty.",
+  "feedback":"Training accuracy only. No confirmed discoveries are claimed. Held-out capability study requires separately sealed seeds and a new analysis plan; family specialization is observable but not guaranteed.",
+  "budgets":{"search_fuel":512,"evaluation_fuel_per_individual":4096,"max_population":8,"reservoir_genomes":32,"organism_cpu_fraction":0.4,"organism_ram_bytes":512000000,"project_ram_bytes":768000000,"project_disk_bytes":1000000000,"swap":0},
+  "recording":"One SQLite FULL synchronous transaction commits compressed raw trials, lifecycle events, parent IDs, candidate genome, task commitment, cumulative fuel and exact PRNG/population checkpoint. Crash before commit re-executes the same transition; source or checkpoint corruption stops recovery.",
+  "retention":"Last 1024 complete attempts retain raw trials. Older raw records are explicitly deleted after their event hashes are folded into a chronological SHA-256 root with a cumulative pruned count. State, private seed and immutable source remain for deterministic regeneration. Diversity FIFO eviction is a public event. Neither thinning nor archived diversity counts as confirmed progress.",
+  "disk_policy":"SQLite capped 64MB including conservative rollback reserve. Project filesystem warning 80%, critical 90%; critical occupancy pauses new attempts without destroying history. Export remains independently available. No automatic deletion of public pilot archives.",
+  "recovery":"Exact committed active population only; technical restart is distinct from recolonization. Bounded systemd restart rate and watchdog. No resurrection of best ancestors.",
+  "claims":"Exploratory ecology. Infrastructure uptime, reproductive attempts and useful capabilities are separate. No guaranteed progress, language invention, generality, multi-year reliability or superiority is asserted."
+}

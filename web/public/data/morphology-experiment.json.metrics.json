@@ -1,0 +1,962 @@
+[
+  {
+    "line": "neutral/fixed/0",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07827600000000015,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/fixed/1",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07688799999999993,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/fixed/2",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07689599999999996,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/fixed/3",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.0757339999999993,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/fixed/4",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07713300000000001,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/fixed/5",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07867099999999971,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/fixed/6",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07583899999999888,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/fixed/7",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07511700000000077,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/0",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 44,
+    "rejected": 0,
+    "unique_proposals": 49,
+    "cpu_seconds": 0.08044299999999938,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/1",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 54,
+    "rejected": 0,
+    "unique_proposals": 39,
+    "cpu_seconds": 0.08035499999999973,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/2",
+    "attempts": 100,
+    "accepted": 99,
+    "neutral": 60,
+    "rejected": 1,
+    "unique_proposals": 30,
+    "cpu_seconds": 0.07838599999999873,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/3",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 48,
+    "rejected": 0,
+    "unique_proposals": 46,
+    "cpu_seconds": 0.08126799999999923,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/4",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 47,
+    "rejected": 0,
+    "unique_proposals": 47,
+    "cpu_seconds": 0.07984499999999883,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/5",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 47,
+    "rejected": 0,
+    "unique_proposals": 37,
+    "cpu_seconds": 0.07923300000000255,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/6",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 50,
+    "rejected": 0,
+    "unique_proposals": 41,
+    "cpu_seconds": 0.08084300000000066,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/parameter/7",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 53,
+    "rejected": 0,
+    "unique_proposals": 36,
+    "cpu_seconds": 0.07897900000000613,
+    "fuel": 4400
+  },
+  {
+    "line": "neutral/structural/0",
+    "attempts": 100,
+    "accepted": 74,
+    "neutral": 59,
+    "rejected": 26,
+    "unique_proposals": 12,
+    "cpu_seconds": 0.5810800000000005,
+    "fuel": 307344
+  },
+  {
+    "line": "neutral/structural/1",
+    "attempts": 100,
+    "accepted": 88,
+    "neutral": 76,
+    "rejected": 12,
+    "unique_proposals": 9,
+    "cpu_seconds": 0.36844399999999977,
+    "fuel": 146404
+  },
+  {
+    "line": "neutral/structural/2",
+    "attempts": 100,
+    "accepted": 80,
+    "neutral": 61,
+    "rejected": 20,
+    "unique_proposals": 13,
+    "cpu_seconds": 0.13402400000000236,
+    "fuel": 41996
+  },
+  {
+    "line": "neutral/structural/3",
+    "attempts": 100,
+    "accepted": 77,
+    "neutral": 54,
+    "rejected": 23,
+    "unique_proposals": 18,
+    "cpu_seconds": 0.24587400000000148,
+    "fuel": 48329
+  },
+  {
+    "line": "neutral/structural/4",
+    "attempts": 100,
+    "accepted": 78,
+    "neutral": 47,
+    "rejected": 22,
+    "unique_proposals": 25,
+    "cpu_seconds": 0.6836650000000004,
+    "fuel": 321450
+  },
+  {
+    "line": "neutral/structural/5",
+    "attempts": 100,
+    "accepted": 78,
+    "neutral": 57,
+    "rejected": 22,
+    "unique_proposals": 17,
+    "cpu_seconds": 0.6464440000000033,
+    "fuel": 316190
+  },
+  {
+    "line": "neutral/structural/6",
+    "attempts": 100,
+    "accepted": 83,
+    "neutral": 58,
+    "rejected": 17,
+    "unique_proposals": 21,
+    "cpu_seconds": 1.0076479999999979,
+    "fuel": 323916
+  },
+  {
+    "line": "neutral/structural/7",
+    "attempts": 100,
+    "accepted": 66,
+    "neutral": 54,
+    "rejected": 34,
+    "unique_proposals": 10,
+    "cpu_seconds": 0.29506699999999775,
+    "fuel": 127398
+  },
+  {
+    "line": "neutral/generative/0",
+    "attempts": 100,
+    "accepted": 97,
+    "neutral": 82,
+    "rejected": 3,
+    "unique_proposals": 12,
+    "cpu_seconds": 0.5574750000000037,
+    "fuel": 295078
+  },
+  {
+    "line": "neutral/generative/1",
+    "attempts": 100,
+    "accepted": 99,
+    "neutral": 85,
+    "rejected": 1,
+    "unique_proposals": 11,
+    "cpu_seconds": 0.17272000000000087,
+    "fuel": 49579
+  },
+  {
+    "line": "neutral/generative/2",
+    "attempts": 100,
+    "accepted": 92,
+    "neutral": 73,
+    "rejected": 8,
+    "unique_proposals": 13,
+    "cpu_seconds": 0.12832299999999552,
+    "fuel": 40456
+  },
+  {
+    "line": "neutral/generative/3",
+    "attempts": 100,
+    "accepted": 92,
+    "neutral": 69,
+    "rejected": 8,
+    "unique_proposals": 18,
+    "cpu_seconds": 0.24517899999999848,
+    "fuel": 48329
+  },
+  {
+    "line": "neutral/generative/4",
+    "attempts": 100,
+    "accepted": 93,
+    "neutral": 62,
+    "rejected": 7,
+    "unique_proposals": 25,
+    "cpu_seconds": 0.6875899999999984,
+    "fuel": 321450
+  },
+  {
+    "line": "neutral/generative/5",
+    "attempts": 100,
+    "accepted": 92,
+    "neutral": 71,
+    "rejected": 8,
+    "unique_proposals": 18,
+    "cpu_seconds": 0.5911530000000074,
+    "fuel": 297180
+  },
+  {
+    "line": "neutral/generative/6",
+    "attempts": 100,
+    "accepted": 96,
+    "neutral": 71,
+    "rejected": 4,
+    "unique_proposals": 21,
+    "cpu_seconds": 1.0089900000000007,
+    "fuel": 323916
+  },
+  {
+    "line": "neutral/generative/7",
+    "attempts": 100,
+    "accepted": 84,
+    "neutral": 68,
+    "rejected": 16,
+    "unique_proposals": 14,
+    "cpu_seconds": 0.2955820000000102,
+    "fuel": 127398
+  },
+  {
+    "line": "cost/fixed/0",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07465799999998879,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/fixed/1",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07497199999999538,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/fixed/2",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07533799999999502,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/fixed/3",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07487800000001954,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/fixed/4",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07406499999999916,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/fixed/5",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07421499999999526,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/fixed/6",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07536099999999202,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/fixed/7",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07417600000000135,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/0",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 44,
+    "rejected": 0,
+    "unique_proposals": 49,
+    "cpu_seconds": 0.0784479999999963,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/1",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 54,
+    "rejected": 0,
+    "unique_proposals": 39,
+    "cpu_seconds": 0.07899199999999951,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/2",
+    "attempts": 100,
+    "accepted": 99,
+    "neutral": 60,
+    "rejected": 1,
+    "unique_proposals": 30,
+    "cpu_seconds": 0.08212900000000367,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/3",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 48,
+    "rejected": 0,
+    "unique_proposals": 46,
+    "cpu_seconds": 0.08235399999999338,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/4",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 47,
+    "rejected": 0,
+    "unique_proposals": 47,
+    "cpu_seconds": 0.08294299999999133,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/5",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 47,
+    "rejected": 0,
+    "unique_proposals": 37,
+    "cpu_seconds": 0.07798800000000128,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/6",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 50,
+    "rejected": 0,
+    "unique_proposals": 41,
+    "cpu_seconds": 0.07811099999998738,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/parameter/7",
+    "attempts": 100,
+    "accepted": 100,
+    "neutral": 53,
+    "rejected": 0,
+    "unique_proposals": 36,
+    "cpu_seconds": 0.07948399999999367,
+    "fuel": 4400
+  },
+  {
+    "line": "cost/structural/0",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 15,
+    "cpu_seconds": 0.04346000000000494,
+    "fuel": 1111
+  },
+  {
+    "line": "cost/structural/1",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 16,
+    "cpu_seconds": 0.0430360000000114,
+    "fuel": 891
+  },
+  {
+    "line": "cost/structural/2",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 20,
+    "cpu_seconds": 0.05242900000000006,
+    "fuel": 2928
+  },
+  {
+    "line": "cost/structural/3",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 12,
+    "cpu_seconds": 0.041877000000001274,
+    "fuel": 704
+  },
+  {
+    "line": "cost/structural/4",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 13,
+    "cpu_seconds": 0.043874000000000635,
+    "fuel": 660
+  },
+  {
+    "line": "cost/structural/5",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 13,
+    "cpu_seconds": 0.055223999999997275,
+    "fuel": 3799
+  },
+  {
+    "line": "cost/structural/6",
+    "attempts": 100,
+    "accepted": 3,
+    "neutral": 1,
+    "rejected": 97,
+    "unique_proposals": 17,
+    "cpu_seconds": 0.041723999999996764,
+    "fuel": 946
+  },
+  {
+    "line": "cost/structural/7",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 13,
+    "cpu_seconds": 0.043269999999996145,
+    "fuel": 1023
+  },
+  {
+    "line": "cost/generative/0",
+    "attempts": 100,
+    "accepted": 3,
+    "neutral": 1,
+    "rejected": 97,
+    "unique_proposals": 15,
+    "cpu_seconds": 0.04406299999999064,
+    "fuel": 1111
+  },
+  {
+    "line": "cost/generative/1",
+    "attempts": 100,
+    "accepted": 4,
+    "neutral": 2,
+    "rejected": 96,
+    "unique_proposals": 16,
+    "cpu_seconds": 0.04306299999999297,
+    "fuel": 891
+  },
+  {
+    "line": "cost/generative/2",
+    "attempts": 100,
+    "accepted": 5,
+    "neutral": 2,
+    "rejected": 95,
+    "unique_proposals": 20,
+    "cpu_seconds": 0.05087100000000433,
+    "fuel": 2928
+  },
+  {
+    "line": "cost/generative/3",
+    "attempts": 100,
+    "accepted": 2,
+    "neutral": 0,
+    "rejected": 98,
+    "unique_proposals": 12,
+    "cpu_seconds": 0.04116899999999646,
+    "fuel": 704
+  },
+  {
+    "line": "cost/generative/4",
+    "attempts": 100,
+    "accepted": 4,
+    "neutral": 1,
+    "rejected": 96,
+    "unique_proposals": 13,
+    "cpu_seconds": 0.04454200000000519,
+    "fuel": 660
+  },
+  {
+    "line": "cost/generative/5",
+    "attempts": 100,
+    "accepted": 5,
+    "neutral": 1,
+    "rejected": 95,
+    "unique_proposals": 15,
+    "cpu_seconds": 0.05633199999999583,
+    "fuel": 3799
+  },
+  {
+    "line": "cost/generative/6",
+    "attempts": 100,
+    "accepted": 4,
+    "neutral": 2,
+    "rejected": 96,
+    "unique_proposals": 17,
+    "cpu_seconds": 0.04155900000000301,
+    "fuel": 946
+  },
+  {
+    "line": "cost/generative/7",
+    "attempts": 100,
+    "accepted": 5,
+    "neutral": 1,
+    "rejected": 95,
+    "unique_proposals": 15,
+    "cpu_seconds": 0.044602999999984405,
+    "fuel": 1023
+  },
+  {
+    "line": "novelty/fixed/0",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07565299999999908,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/fixed/1",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.0775939999999995,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/fixed/2",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07601900000000761,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/fixed/3",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07577799999999257,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/fixed/4",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07654800000001671,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/fixed/5",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.0748299999999773,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/fixed/6",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.0751950000000079,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/fixed/7",
+    "attempts": 100,
+    "accepted": 0,
+    "neutral": 0,
+    "rejected": 100,
+    "unique_proposals": 1,
+    "cpu_seconds": 0.07677399999999679,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/0",
+    "attempts": 100,
+    "accepted": 51,
+    "neutral": 0,
+    "rejected": 49,
+    "unique_proposals": 51,
+    "cpu_seconds": 0.07932999999997392,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/1",
+    "attempts": 100,
+    "accepted": 37,
+    "neutral": 1,
+    "rejected": 63,
+    "unique_proposals": 37,
+    "cpu_seconds": 0.07784399999999536,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/2",
+    "attempts": 100,
+    "accepted": 32,
+    "neutral": 1,
+    "rejected": 68,
+    "unique_proposals": 32,
+    "cpu_seconds": 0.07992300000002217,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/3",
+    "attempts": 100,
+    "accepted": 41,
+    "neutral": 1,
+    "rejected": 59,
+    "unique_proposals": 41,
+    "cpu_seconds": 0.07985599999998172,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/4",
+    "attempts": 100,
+    "accepted": 47,
+    "neutral": 0,
+    "rejected": 53,
+    "unique_proposals": 47,
+    "cpu_seconds": 0.07807000000000386,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/5",
+    "attempts": 100,
+    "accepted": 46,
+    "neutral": 0,
+    "rejected": 54,
+    "unique_proposals": 46,
+    "cpu_seconds": 0.07776299999999381,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/6",
+    "attempts": 100,
+    "accepted": 43,
+    "neutral": 0,
+    "rejected": 57,
+    "unique_proposals": 43,
+    "cpu_seconds": 0.07772599999999485,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/parameter/7",
+    "attempts": 100,
+    "accepted": 40,
+    "neutral": 1,
+    "rejected": 60,
+    "unique_proposals": 40,
+    "cpu_seconds": 0.07714200000002691,
+    "fuel": 4400
+  },
+  {
+    "line": "novelty/structural/0",
+    "attempts": 100,
+    "accepted": 23,
+    "neutral": 1,
+    "rejected": 77,
+    "unique_proposals": 23,
+    "cpu_seconds": 0.22810999999997605,
+    "fuel": 56515
+  },
+  {
+    "line": "novelty/structural/1",
+    "attempts": 100,
+    "accepted": 22,
+    "neutral": 0,
+    "rejected": 78,
+    "unique_proposals": 23,
+    "cpu_seconds": 0.8931569999999773,
+    "fuel": 279543
+  },
+  {
+    "line": "novelty/structural/2",
+    "attempts": 100,
+    "accepted": 32,
+    "neutral": 0,
+    "rejected": 68,
+    "unique_proposals": 33,
+    "cpu_seconds": 0.523888000000003,
+    "fuel": 161709
+  },
+  {
+    "line": "novelty/structural/3",
+    "attempts": 100,
+    "accepted": 26,
+    "neutral": 0,
+    "rejected": 74,
+    "unique_proposals": 27,
+    "cpu_seconds": 0.6233100000000107,
+    "fuel": 209570
+  },
+  {
+    "line": "novelty/structural/4",
+    "attempts": 100,
+    "accepted": 20,
+    "neutral": 0,
+    "rejected": 80,
+    "unique_proposals": 20,
+    "cpu_seconds": 0.7698430000000052,
+    "fuel": 198982
+  },
+  {
+    "line": "novelty/structural/5",
+    "attempts": 100,
+    "accepted": 25,
+    "neutral": 0,
+    "rejected": 75,
+    "unique_proposals": 25,
+    "cpu_seconds": 0.7528309999999969,
+    "fuel": 156323
+  },
+  {
+    "line": "novelty/structural/6",
+    "attempts": 100,
+    "accepted": 22,
+    "neutral": 1,
+    "rejected": 78,
+    "unique_proposals": 22,
+    "cpu_seconds": 0.791641999999996,
+    "fuel": 231533
+  },
+  {
+    "line": "novelty/structural/7",
+    "attempts": 100,
+    "accepted": 25,
+    "neutral": 0,
+    "rejected": 75,
+    "unique_proposals": 25,
+    "cpu_seconds": 0.33981699999999293,
+    "fuel": 111421
+  },
+  {
+    "line": "novelty/generative/0",
+    "attempts": 100,
+    "accepted": 26,
+    "neutral": 1,
+    "rejected": 74,
+    "unique_proposals": 26,
+    "cpu_seconds": 0.26916900000002286,
+    "fuel": 56086
+  },
+  {
+    "line": "novelty/generative/1",
+    "attempts": 100,
+    "accepted": 36,
+    "neutral": 0,
+    "rejected": 64,
+    "unique_proposals": 37,
+    "cpu_seconds": 0.9927280000000103,
+    "fuel": 288392
+  },
+  {
+    "line": "novelty/generative/2",
+    "attempts": 100,
+    "accepted": 34,
+    "neutral": 1,
+    "rejected": 66,
+    "unique_proposals": 34,
+    "cpu_seconds": 0.7307589999999919,
+    "fuel": 161654
+  },
+  {
+    "line": "novelty/generative/3",
+    "attempts": 100,
+    "accepted": 26,
+    "neutral": 0,
+    "rejected": 74,
+    "unique_proposals": 27,
+    "cpu_seconds": 0.8956440000000221,
+    "fuel": 209570
+  },
+  {
+    "line": "novelty/generative/4",
+    "attempts": 100,
+    "accepted": 21,
+    "neutral": 0,
+    "rejected": 79,
+    "unique_proposals": 21,
+    "cpu_seconds": 0.9347650000000058,
+    "fuel": 198479
+  },
+  {
+    "line": "novelty/generative/5",
+    "attempts": 100,
+    "accepted": 35,
+    "neutral": 0,
+    "rejected": 65,
+    "unique_proposals": 35,
+    "cpu_seconds": 1.0188089999999903,
+    "fuel": 263258
+  },
+  {
+    "line": "novelty/generative/6",
+    "attempts": 100,
+    "accepted": 26,
+    "neutral": 1,
+    "rejected": 74,
+    "unique_proposals": 26,
+    "cpu_seconds": 0.9363840000000287,
+    "fuel": 228172
+  },
+  {
+    "line": "novelty/generative/7",
+    "attempts": 100,
+    "accepted": 39,
+    "neutral": 0,
+    "rejected": 61,
+    "unique_proposals": 39,
+    "cpu_seconds": 0.6807989999999897,
+    "fuel": 171410
+  }
+]

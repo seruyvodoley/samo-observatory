@@ -1,0 +1,30 @@
+# Local data and credentials
+.private/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.pem
+*.key
+*.p12
+*.pfx
+*.seed
+*seeds*.json
+
+# Local tooling and generated files
+.DS_Store
+.agents/
+.wrangler/
+.playwright-cli/
+prepared-skills/
+output/
+node_modules/
+web/dist/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
+*.log
+*.tgz

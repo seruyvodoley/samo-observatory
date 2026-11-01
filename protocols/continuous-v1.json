@@ -1,0 +1,56 @@
+{
+  "id": "samo-continuous-v1",
+  "version": 1,
+  "hypothesis": "Evolvable search bytecode may change predictive performance under a fixed total VM-fuel ceiling; direction and persistence are unknown.",
+  "scope": "16-bit integer processes; one-step prediction; 12 observed values then 12 scored predictions per process",
+  "primary_metric": "confirm exact-match accuracy, all assigned runs including failed runs (failure score zero)",
+  "secondary_metrics": [
+    "normalized absolute error",
+    "transfer accuracy",
+    "fuel used",
+    "viability",
+    "regressions",
+    "behavioral diversity"
+  ],
+  "conditions": [
+    "samo"
+  ],
+  "seeds": [
+    17,
+    41,
+    93,
+    137,
+    211
+  ],
+  "unit_of_independence": "run; paired by initial seed and task stream, generations are dependent",
+  "train_families": [
+    "constant",
+    "arithmetic",
+    "periodic",
+    "recurrence",
+    "switch",
+    "random"
+  ],
+  "transfer_families": [
+    "quadratic",
+    "xor"
+  ],
+  "split_ownership": "Trusted evaluator owns independent train/validation/confirm/transfer seeds. VM only receives past values, inherited memory, and search RNG. No validation or confirm feedback enters selection.",
+  "confirmation": "Once per completed run on the final active genome; never choose historical best; confirm and transfer seeds remain private. Reuse is replay only, fresh studies require fresh sealed seeds.",
+  "selection": "Metropolis on training accuracy, temperature 0.08; deleterious transitions allowed; no best-genome restoration; sterile search terminates the run",
+  "budget": {
+    "fuel_ceiling": 1000000000,
+    "search_fuel_per_attempt": 512,
+    "prediction_fuel": 128,
+    "max_attempts": 1000000,
+    "max_seconds": 31536000,
+    "max_genome_bytes": 32768,
+    "archive_bytes": 64000000
+  },
+  "stopping": "Fuel/attempt/wall/archive ceiling, sterile search, infrastructure failure or user interruption. Ten-attempt checkpoints resume only the exact active genome and PRNG. No automatic resurrection.",
+  "failure_rule": "VM traps count as wrong predictions, with explicit failure counts; sterile organisms retain last measured quality but final confirmation is reported with viability=false; infrastructure failures receive score zero and separate status",
+  "analysis": "Single exploratory lineage, not a comparison study. No statistical superiority inference.",
+  "minimum_effect_for_future_study": 0.05,
+  "interventions": "none during autonomous run; interrupted continuation must use saved exact RNG and active genome, never best ancestor",
+  "claims": "Finite bounded pilot cannot establish open-ended evolution, invention of a language, general intelligence or global novelty."
+}
