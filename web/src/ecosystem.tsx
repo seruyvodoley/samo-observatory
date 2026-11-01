@@ -4,7 +4,7 @@ import type {Genome} from './data';
 import {verifyMorphology,sha} from './morphology-data';
 import {checkGenome,type Form} from './instrument';
 import {VisitorInfo,VisitorViews} from './visitor';
-type EcoEvent={index:number;episode:number;kind:string;family:string;family_accuracy?:Record<string,number>;accepted?:boolean;accuracy?:number;changes?:string[];lifecycle:{kind:string;id?:string;reason?:string;source?:{kind:string}}[]};
+export type EcoEvent={index:number;episode:number;kind:string;family:string;family_accuracy?:Record<string,number>;accepted?:boolean;accuracy?:number;changes?:string[];lifecycle:{kind:string;id?:string;reason?:string;source?:{kind:string}}[]};
 export type Eco={schema:number;protocol:string;generated_at:string;observation:{observed_at:string;status:string;environment?:string;storage_fraction?:number};step:number;episode:number;attempts:number;births:number;deaths:number;recolonizations:number;fuel:number;population:Form[];events:EcoEvent[];retention:{pruned_records:number;root:string};history?:Form[];snapshot_id?:string;published_at?:string;long_term?:unknown;claims:unknown[];telemetry?:{morphology_changes?:number;morphology_effects?:number;morphology_neutral?:number;unique_genomes:number;genotype_changes:number;behavior_changes:number;search_errors:number;stagnant_attempts:number;search_workability?:number;active_search_observations?:{population:number;tested:number;last_success:number;unknown:number};independent_accuracy:number|null};infrastructure?:{checked_at:string;organism:string;detail:string;technical_restarts:number};interventions?:{kind:string;at_attempt:number;reason:string}[];episodes?:{episode:number;started_at:number;ended_at:number|null;reason:string;sources:{id:string;source:{kind:string;id?:string}}[]}[];episode_retention?:{pruned:number}};
 function canonical(x:unknown):string{if(Array.isArray(x))return '['+x.map(canonical).join(',')+']';if(x&&typeof x==='object')return '{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical((x as Record<string,unknown>)[k])).join(',')+'}';return JSON.stringify(x);}
 function validate(x:unknown):Eco{
@@ -36,9 +36,9 @@ export function useEcology(){const value=useContext(EcologyContext);if(!value)th
 // The landing view represents a current participant; archive views may retain historical forms.
 // Share this rule with WebGL so the label and the dominant model can never diverge.
 export function selectObservedForm(data:Eco|null,forms:Form[],requested:string|null|undefined,route:string):Form|undefined{
- const active=[...(data?.population||[])].sort((a,b)=>a.born-b.born||a.id.localeCompare(b.id));
- const candidates=route==='/'?active:forms;
- return candidates.find(x=>x.id===requested)||active[0]||(route==='/'?undefined:forms.at(-1));
+ const active=[...(data?.population||[])].sort((a,b)=>b.born-a.born||b.id.localeCompare(a.id));
+ if(route==='/')return active[0];
+ return forms.find(x=>x.id===requested)||active[0]||forms.at(-1);
 }
 export function Ecosystem(){
  const {data,unavailable,issue,forms}=useEcology();const location=useLocation();const [params,setParams]=useSearchParams();

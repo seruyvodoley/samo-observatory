@@ -9,6 +9,7 @@
 .scene-fallback-empty{font:500 .8rem/1.5 "Manrope Variable",sans-serif}
 .spatial-figure{position:relative;z-index:2;isolation:isolate;width:100%;height:clamp(350px,42vw,590px);min-height:350px;margin:0;overflow:hidden;touch-action:pan-y;contain:layout paint;background:#e7eeea}
 .spatial-hitbox{position:absolute;inset:62px 2% 68px;z-index:1;touch-action:none;cursor:grab;outline:none}
+.spatial-viewport[data-space-scene="lineage"] .spatial-hitbox[aria-hidden="true"]{pointer-events:auto;touch-action:pan-y;cursor:pointer}
 .spatial-hitbox:active{cursor:grabbing}
 .spatial-hitbox:focus-visible{outline:2px solid #17322e;outline-offset:-4px}
 .spatial-tools{position:absolute;inset:0;z-index:2;pointer-events:none}

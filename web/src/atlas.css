@@ -392,6 +392,28 @@ html:is([data-route="life"],[data-route="organism"],[data-route="evolution"],[da
 .atlas-site main span:not(.science-mark>span):not(.quiet-zero>span){font-size:max(14px,1em)!important}
 .atlas-site .lineage-facts span{font-size:14px!important}
 
+.life-latest-note,.lineage-archive-note{max-width:38rem;margin:1.1rem 0;color:var(--atlas-secondary);font-size:.95rem;line-height:1.6}
+.lineage-guide{display:flex;flex-wrap:wrap;gap:.65rem 1.4rem;margin:1.4rem 0 0;padding:1rem 0;border-top:1px solid var(--atlas-line);border-bottom:1px solid var(--atlas-line)}
+.lineage-guide>span{display:inline-flex;align-items:center;gap:.55rem;color:var(--atlas-secondary);font-size:.84rem;line-height:1.4}
+.lineage-guide i,.lineage-state i{width:.72rem;height:.72rem;flex:0 0 auto;border-radius:50%}
+.lineage-guide-missing i{border:1px dashed currentColor;border-radius:0;background:transparent!important}
+.lineage-chart-legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;max-width:95%;padding:.55rem .7rem;background:rgba(16,27,36,.78);border:1px solid rgba(189,221,222,.17);backdrop-filter:blur(8px)}
+.lineage-chart-legend>span{display:inline-flex;align-items:center;gap:.38rem;color:#d3e0df;font-size:.72rem;line-height:1.3;white-space:nowrap}
+.lineage-chart-legend i{width:.58rem;height:.58rem;flex:0 0 auto;border-radius:50%}
+.spatial-overlay{position:absolute;z-index:3;right:1rem;bottom:6.5rem;left:1rem;display:flex;justify-content:flex-start;pointer-events:none}
+.lineage-row .lineage-state{display:flex;align-items:center;gap:.55rem;color:var(--atlas-secondary);font-size:.82rem}
+.lineage-row.state-active .lineage-state i{background:#43b7a3}
+.lineage-row.state-ancestor .lineage-state i{background:#83b68a}
+.lineage-row.state-displaced .lineage-state i{background:#d5aa65}
+.lineage-row.state-ended .lineage-state i{background:#dc806e}
+.lineage-row.state-unknown .lineage-state i{background:#83939a}
+.lineage-row.state-rejected .lineage-state i{background:#929397}
+.event-accepted .event-marker{background:#83b68a}
+.event-not-accepted .event-marker{background:#83939a}
+.event-withdrawal .event-marker{outline:2px solid #d5aa65;outline-offset:2px}
+.event-recolonization .event-marker{background:#d5aa65;box-shadow:0 0 0 3px rgba(213,170,101,.2)}
+@media(max-width:640px){.lineage-guide{gap:.55rem .9rem}.lineage-guide>span{font-size:.75rem}.life-latest-note,.lineage-archive-note{font-size:.9rem}.lineage-row .lineage-state{font-size:.78rem}.spatial-overlay{right:.5rem;bottom:5.5rem;left:.5rem}.lineage-chart-legend{gap:.35rem .65rem;max-width:100%;padding:.45rem}.lineage-chart-legend>span{font-size:.68rem;white-space:normal}}
+
 /* Memory selection stays readable above its quantitative bar. */
 .atlas-site .memory-grid button>i{opacity:.3;pointer-events:none}
 .atlas-site .memory-grid button>span,.atlas-site .memory-grid button>strong,.atlas-site .memory-grid button>small{position:relative;z-index:1}
