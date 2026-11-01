@@ -2,7 +2,7 @@
 
 **САМО изучает, могут ли изменяющиеся программы научиться предсказывать незнакомые числовые последовательности.** Исход эксперимента неизвестен: система может найти полезный способ, потерять его или долго не показывать заметного результата.
 
-[Открыть обсерваторию](https://samo-observatory.pages.dev/) · [Как проверяются результаты](https://samo-observatory.pages.dev/science) · [О проекте](https://samo-observatory.pages.dev/about)
+[Открыть обсерваторию](https://samo-observatory.duckdns.org/) · [Как проверяются результаты](https://samo-observatory.duckdns.org/science) · [О проекте](https://samo-observatory.duckdns.org/about)
 
 ## Какую задачу решает САМО
 
