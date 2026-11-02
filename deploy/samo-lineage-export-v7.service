@@ -1,0 +1,46 @@
+[Unit]
+Description=Publish bounded v7 ancestry context for the public observatory
+Requires=srv-samo.mount
+After=srv-samo.mount
+
+[Service]
+Type=oneshot
+User=samo-export
+Group=samo-data
+Slice=samo.slice
+WorkingDirectory=/srv/samo/releases/core-v7/code
+Environment=PYTHONDONTWRITEBYTECODE=1 TMPDIR=/srv/samo/site/data PYTHONPATH=/srv/samo/releases/core-v7/code
+ExecStart=/usr/bin/python3 -m morphology.export_lineage_v7 --db /srv/samo/state/ecology-v7.sqlite --output /srv/samo/site/data/lineage-v7.json
+CPUQuota=10%
+CPUQuotaPeriodSec=100ms
+MemoryMax=128000000
+MemorySwapMax=0
+TasksMax=4
+TimeoutStartSec=120s
+LimitCORE=0
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateNetwork=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectProc=invisible
+ProcSubset=pid
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_UNIX
+SystemCallFilter=@system-service
+SystemCallFilter=~@mount @raw-io @reboot @swap
+ReadOnlyPaths=/srv/samo/state
+ReadWritePaths=/srv/samo/site/data
+UMask=0022
+StandardOutput=null
+StandardError=journal
