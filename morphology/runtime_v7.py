@@ -181,8 +181,12 @@ def snapshot(recorder):
     history=history[-8:];events=events[-128:]
     retention=recorder.db.execute("SELECT payload FROM retention WHERE id=1").fetchone()
     run_row=recorder.db.execute("SELECT payload FROM run WHERE id=1").fetchone()
+    run_config=json.loads(run_row[0]) if run_row else {}
     data={"schema":1,"protocol":PROTOCOL,"protocol_hash":PROTOCOL_HASH,"source_hash":source_hash(),
           "arm":s["arm"],"generated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
+          "run":{"seed":run_config.get("seed"),"size":run_config.get("size"),
+                 "mode":run_config.get("mode"),"arm":run_config.get("arm"),
+                 "source_hash":run_config.get("source_hash")},
           "observation":{"observed_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
                          "status":"latest_saved","environment":"registered v7 research runtime"},
           "step":s["core"]["step"],"episode":s["core"]["episode"],"attempts":s["core"]["attempts"],
@@ -190,7 +194,7 @@ def snapshot(recorder):
           "fuel":s["core"]["fuel"]+s["morphology_fuel"],"computational_fuel":s["core"]["fuel"],
           "morphology_fuel":s["morphology_fuel"],"population":population,"events":events,
           "history":history,"episodes":s["core"]["episodes"],
-          "initial_morphology_assignments":json.loads(run_row[0]).get("initial_morphology_assignments",[]) if run_row else [],
+          "initial_morphology_assignments":run_config.get("initial_morphology_assignments",[]),
           "retention":{**(json.loads(retention[0]) if retention else {"pruned_records":0,"root":digest([]),"through":-1}),
               "snapshot_history_omitted":history_total-len(history),"snapshot_events_omitted":events_total-len(events),
               "snapshot_first_event":events[0]["index"] if events else None},
