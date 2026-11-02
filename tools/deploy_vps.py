@@ -9,7 +9,9 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEST = "/srv/samo/site/"
+# The deployment key is restricted to this directory by rrsync, so the remote
+# path must be relative to its locked root.
+DEST = "./"
 
 
 def run(*args: str) -> None:
@@ -31,8 +33,8 @@ if args.build:
 dist = ROOT / "web" / "dist"
 if not (dist / "index.html").is_file():
     raise SystemExit("web/dist/index.html is missing; build the website first")
-ssh = ["ssh", "-o", "BatchMode=yes"]
-rsync_ssh = "ssh -o BatchMode=yes"
+ssh = ["ssh", "-o", "BatchMode=yes", "-o", "IdentitiesOnly=yes", "-o", "StrictHostKeyChecking=yes"]
+rsync_ssh = "ssh -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
 if args.identity:
     identity = Path(args.identity).expanduser()
     if not identity.is_file():
@@ -41,7 +43,7 @@ if args.identity:
     rsync_ssh += " -i " + str(identity)
 run(*ssh, args.host, "test -d /srv/samo/site/data && test -f /srv/samo/site/data/ecosystem.json")
 run(
-    "rsync", "-az", "--exclude=/data/***",
+    "rsync", "-rtzp", "--exclude=/data/***",
     "-e", rsync_ssh,
     str(dist) + "/", args.host + ":" + DEST,
 )

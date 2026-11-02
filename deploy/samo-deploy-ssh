@@ -1,0 +1,23 @@
+#!/usr/bin/python3
+"""Restricted SSH entry point for static-site deployments."""
+
+import os
+import sys
+
+
+PREFLIGHT = "test -d /srv/samo/site/data && test -f /srv/samo/site/data/ecosystem.json"
+original = os.environ.get("SSH_ORIGINAL_COMMAND", "")
+
+if original == PREFLIGHT:
+    sys.exit(0 if os.path.isdir("/srv/samo/site/data") and os.path.isfile("/srv/samo/site/data/ecosystem.json") else 1)
+
+# macOS rsync sends --dirs as a long option, which Debian's rrsync parser
+# does not recognize. Translate only that option before the path delimiter;
+# rrsync still validates every option and confines all paths.
+prefix, separator, suffix = original.partition(" . ")
+parts = prefix.split()
+if not separator or parts[:2] != ["rsync", "--server"]:
+    sys.exit("This key is restricted to static-site rsync uploads.")
+parts = ["-d" if part == "--dirs" else part for part in parts]
+os.environ["SSH_ORIGINAL_COMMAND"] = " ".join(parts) + separator + suffix
+os.execv("/usr/bin/rrsync", ["/usr/bin/rrsync", "-wo", "-no-del", "/srv/samo/site"])
