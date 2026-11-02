@@ -1,0 +1,11 @@
+# NOT ACCEPTED FOR PRODUCTION. Validate in disposable separate Linux VM first.
+[Unit]
+Description=SAMO aggregate computational ceiling
+[Slice]
+CPUWeight=10
+IOWeight=10
+CPUQuota=60%
+CPUQuotaPeriodSec=100ms
+MemoryMax=768000000
+MemorySwapMax=0
+TasksMax=32

@@ -1,0 +1,50 @@
+# Example only. No install script deliberately provided. Requires isolated rootfs,
+# fixed-size writable volume + inode quota and an independently signed-off VM audit.
+[Unit]
+Description=SAMO continuous offline lineage
+ConditionPathExists=/etc/samo/ISOLATION_ACCEPTED
+After=local-fs.target
+[Service]
+Type=simple
+User=samo
+Group=samo
+Slice=samo.slice
+RootDirectory=/srv/samo/rootfs
+WorkingDirectory=/opt/samo
+ExecStart=/usr/bin/python3 -m samo.cli --archive /state/archive/watch.sqlite watch --private-seeds /state/private/watch-seeds.json
+Restart=on-failure
+RestartSec=30s
+StartLimitIntervalSec=1h
+StartLimitBurst=3
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateNetwork=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_UNIX
+Delegate=no
+ReadWritePaths=/state
+TemporaryFileSystem=/tmp:size=16000000,nosuid,nodev,noexec
+LimitCORE=0
+LimitNOFILE=64
+UMask=0077
+StandardOutput=null
+StandardError=null
+KillMode=control-group
+TimeoutStopSec=10
+# /state and every other SAMO write path must be on the same project quota (700,000,000 bytes
+# total, finite inode quota). These unit settings DO NOT enforce disk quota. Restart re-enters
+# watch, which resumes its committed checkpoint and refuses terminal lineages; never restore best.

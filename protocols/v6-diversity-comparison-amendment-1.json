@@ -1,0 +1,16 @@
+{
+  "id": "samo-v6-morphology-live-birth-comparison-amendment-1",
+  "parent_protocol": "v6-diversity-comparison.json",
+  "status": "registered before the paired resource-matched run",
+  "reason": "A bounded calibration run showed substantial policy-dependent CPU per equal VM fuel. The original 120 second CPU ceiling did not bind and therefore was not a matched realized CPU budget.",
+  "changes": {
+    "cpu_ns_per_replicate": 6000000000,
+    "combined_vm_fuel_per_replicate": 2000000,
+    "max_steps": 600,
+    "stop_rule": "The first completed transition at or beyond either CPU or VM-fuel ceiling is retained. Report both actual costs and the measured maximum one-step overshoot; all arms have the same ceilings.",
+    "primary_outcome": "number of unique active phenotype hashes at the resource-bounded endpoint",
+    "secondary_outcome": "per-step mean active unique phenotypes and niche occupancy; not a replacement for the endpoint metric"
+  },
+  "calibration_preservation": "The partial seed-314159 neutral and novelty runs made under the parent limit are preserved in output/v6-calibration-resource-limit/ and excluded from paired outcome analysis.",
+  "no_other_changes": "Seed list, arms, computational ecology, v4 selection, morphology proposal count, descriptor definitions and archive/genotype policy remain unchanged."
+}

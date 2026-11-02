@@ -1,0 +1,57 @@
+[Unit]
+Description=SAMO durable population ecology
+Requires=srv-samo.mount
+After=srv-samo.mount
+StartLimitIntervalSec=1h
+StartLimitBurst=3
+[Service]
+Type=notify
+NotifyAccess=main
+User=samo-organism
+Group=samo-data
+Slice=samo.slice
+WorkingDirectory=/srv/samo/code
+Environment=PYTHONDONTWRITEBYTECODE=1 TMPDIR=/srv/samo/state/tmp SAMO_ENV=vps
+ExecStart=/usr/bin/python3 -m samo.ecology_runtime run --db /srv/samo/state/ecology.sqlite --pause 1
+Restart=on-failure
+RestartSec=30s
+WatchdogSec=120s
+TimeoutStartSec=120s
+TimeoutStopSec=15s
+KillMode=control-group
+CPUQuota=40%
+CPUQuotaPeriodSec=100ms
+MemoryMax=512000000
+MemorySwapMax=0
+TasksMax=16
+LimitCORE=0
+LimitNOFILE=64
+UMask=0027
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateNetwork=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectProc=invisible
+ProcSubset=pid
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_UNIX
+SystemCallFilter=@system-service
+SystemCallFilter=~@mount @raw-io @reboot @swap
+ReadWritePaths=/srv/samo/state
+InaccessiblePaths=-/etc/wireguard -/etc/xray -/etc/tunneldeck -/var/lib/docker -/run/docker.sock -/run/systemd/private
+StandardOutput=null
+StandardError=null
+[Install]
+WantedBy=multi-user.target

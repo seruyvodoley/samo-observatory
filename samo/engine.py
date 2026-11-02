@@ -22,7 +22,10 @@ def now():
 
 
 def source_hash():
-    return digest({p.name: p.read_text() for p in sorted(Path(__file__).parent.glob('*.py'))})
+    # Finder/AppleDouble sidecars are metadata, not Python sources. Exclude
+    # them explicitly so packaging on macOS and Linux hashes the same code.
+    return digest({p.name: p.read_text() for p in sorted(Path(__file__).parent.glob('*.py'))
+                   if not p.name.startswith('._')})
 
 
 def state_tuple(value):

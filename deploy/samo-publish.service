@@ -1,0 +1,31 @@
+[Unit]
+Description=SAMO verified public JSON publication
+Requires=srv-samo.mount
+After=srv-samo.mount network-online.target
+[Service]
+Type=oneshot
+User=samo-publish
+Group=samo-publish
+Slice=samo-aux.slice
+ExecStart=/usr/bin/python3 /srv/samo/publisher/publish_snapshot.py
+CPUQuota=10%
+MemoryMax=160000000
+MemorySwapMax=0
+TasksMax=4
+LimitCORE=0
+TimeoutStartSec=90s
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadOnlyPaths=/srv/samo/site
+ReadWritePaths=/srv/samo/publisher
+Environment=PYTHONDONTWRITEBYTECODE=1 TMPDIR=/srv/samo/publisher
+UMask=0077
+StandardOutput=null
+StandardError=null

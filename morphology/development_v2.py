@@ -259,7 +259,7 @@ def describe(phenotype):
 
 
 def niche(descriptor):
-    """Bounded MAP-Elites descriptor cells, deliberately not ordered by quality."""
+    """Bounded descriptor-occupancy archive cells, not ranked by quality."""
     n = descriptor["decorative_nodes"]
     node_bin = 0 if n == 0 else 1 if n <= 3 else 2 if n <= 15 else 3
     span = descriptor["spatial_span"]

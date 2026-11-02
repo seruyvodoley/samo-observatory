@@ -1,0 +1,12 @@
+{
+  "id": "samo-v6-morphology-live-birth-comparison-amendment-3",
+  "parent_protocol": "v6-diversity-comparison-amendment-2.json",
+  "status": "registered before rerunning the exact common-budget pass",
+  "reason": "The first amendment-2 implementation stopped after the first block because its final summary referred to a nonexistent per-row cpu_ns field; it correctly preserved the partial SQLite data but did not produce a valid complete comparison.",
+  "changes": {
+    "software_only": "Map the summary maximum-step-CPU field to the existing transition_cpu_ns measurement.",
+    "failed_attempt": "Preserve the partial first block under output/v6-exact-budget-partial-2026-11-02/ and exclude it from analysis. Start a fresh output directory; no failed block is overwritten or counted.",
+    "scientific_method": "No changes to seeds, arms, budgets, primary outcome, endpoint rule, selection, or treatment assignment."
+  },
+  "preservation": "The partial VM SQLite recorder is copied with its original protocol manifest and database hash to the listed output location."
+}

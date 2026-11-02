@@ -1,0 +1,25 @@
+{
+  "cpu_quota_us": 40000,
+  "cpu_period_us": 100000,
+  "organism_memory_max_bytes": 512000000,
+  "project_memory_target_bytes": 768000000,
+  "memory_swap_max_bytes": 0,
+  "project_disk_max_bytes": 1000000000,
+  "disk_warning_bytes": 800000000,
+  "disk_critical_bytes": 900000000,
+  "project_inode_max": 26752,
+  "pids_max": 32,
+  "enforcement_required": [
+    "cgroup-v2",
+    "fixed-size-filesystem-or-project-quota",
+    "inode-quota",
+    "all-project-write-paths-on-quota"
+  ],
+  "project_cpu_quota_us": 60000,
+  "web_cpu_quota_us": 10000,
+  "aux_cpu_quota_us": 10000,
+  "aux_memory_max_bytes": 160000000,
+  "web_memory_max_bytes": 96000000,
+  "image_bytes": 999866368,
+  "root_metadata_reserve_bytes": 133632
+}

@@ -1,0 +1,20 @@
+{
+  "id": "samo-ecology-v6-morphology",
+  "version": 1,
+  "status": "registered experimental protocol; not production approved",
+  "computational_protocol": "samo-ecology-v4, byte-for-byte wrapped; compute RNG and selection are invariant",
+  "morphogenesis": "samo-morphogenesis-2",
+  "arms": ["neutral", "novelty", "bounded_archive_diversity"],
+  "terminology": "bounded archive-based diversity search; no fitness elite is selected, therefore not MAP-Elites",
+  "inheritance": "v2 morphology descends from actual current computational parent at each accepted birth; morphology founders use founder_v2 and an independent seeded RNG",
+  "archive_policy": "up to 64 descriptor-cell occupancy records; no genotypes, no donor use, no revival of extinct lines",
+  "candidate_proposals": 4,
+  "proposal_policy": "all arms create and develop four mutations per accepted birth; neutral samples one, novelty maximizes nearest distance to active descriptors, archive-diversity favors the least occupied archived niche; ties use registered morphology RNG",
+  "phenotype_niches": "descriptor bins for decorative nodes, spatial span, branch count and shape types",
+  "selection": "computational v4 selection unchanged; morphology score never enters prediction fitness, evaluation, or parent selection",
+  "recolonization": "v4 registered fresh computational founders; independently generated v2 morphology founder genomes; archived genotypes never reintroduced",
+  "limits": {"cpu_percent_one_logical_core": 40, "memory_bytes": 512000000, "swap_bytes": 0, "project_disk_bytes": 1000000000},
+  "retention": {"raw_events": 1024, "bounded_morphology_cells": 64, "sqlite_bytes": 64000000, "older_event_policy": "hash-chain pruning summary; preserve original v5 and pilot archives"},
+  "metrics": ["unique active phenotype hashes", "occupied descriptor niches", "spatial span", "sphere returns", "structural persistence", "actual accepted births", "natural extinctions", "recolonizations", "morphology fuel", "CPU nanoseconds"],
+  "claims": "No improvement is guaranteed. Morphology diversity is not predictive capability; computational efficacy remains independently measured by v4 results."
+}

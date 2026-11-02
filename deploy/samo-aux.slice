@@ -1,0 +1,7 @@
+[Unit]
+Description=SAMO shared observation and publication budget
+[Slice]
+CPUQuota=10%
+MemoryMax=160000000
+MemorySwapMax=0
+TasksMax=12

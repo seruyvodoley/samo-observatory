@@ -1,0 +1,26 @@
+# Trusted offline exporter, separate UID, separate cgroup; no network or organism control.
+[Unit]
+Description=SAMO public snapshot export
+ConditionPathExists=/etc/samo/ISOLATION_ACCEPTED
+[Service]
+Type=oneshot
+User=samo-export
+Group=samo-export
+WorkingDirectory=/opt/samo
+ExecStart=/usr/bin/python3 -m samo.cli --archive /srv/samo/archive/watch.sqlite export --output /srv/samo/public/snapshot.json --csv /srv/samo/public/results.csv
+CPUQuota=10%
+MemoryMax=128000000
+MemorySwapMax=0
+TasksMax=4
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateNetwork=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/srv/samo/archive
+ReadWritePaths=/srv/samo/public
+LimitCORE=0
+UMask=0027
+# Snapshot volume: externally enforce 16 MB + finite inodes. No auto-upload credentials.

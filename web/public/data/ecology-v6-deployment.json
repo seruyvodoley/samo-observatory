@@ -1,0 +1,103 @@
+{
+  "checks": {
+    "checkpoint_recovery_and_deterministic_resume": true,
+    "compute_path_parity": true,
+    "linux_vm": "Ubuntu 24.04.5 aarch64; cgroup v2; no network",
+    "mobile_routes_390px_no_horizontal_overflow": true,
+    "natural_extinction_recolonization": true,
+    "public_snapshot_schema_and_react_validation": true,
+    "unit_tests": {
+      "failed": 0,
+      "passed": 81
+    }
+  },
+  "comparison": {
+    "archive_diversity_mean_active_forms": 2.75,
+    "archive_minus_neutral_exact_sign_test_p": 0.375,
+    "archive_minus_neutral_mean_paired_difference": 0.625,
+    "arms": [
+      "neutral",
+      "novelty",
+      "bounded_archive_diversity"
+    ],
+    "interpretation": "positive exploratory trend; not statistically confirmed; not a compute-capability result",
+    "matched_cpu_and_combined_vm_fuel_endpoint": true,
+    "neutral_mean_active_forms": 2.125,
+    "novelty_mean_active_forms": 2.375,
+    "paired_seed_blocks": 8,
+    "result_hash": "62512895f1302ec4d58b545c10bc275a2640716b8eae3616487795da20102c25"
+  },
+  "id": "samo-v6-technical-acceptance-2026-11-02",
+  "long_runtime": {
+    "active_unique_forms_at_end": 1,
+    "database_sha256": "b3ff523335d7e905b41e656da405099c63d6a625aef852da140b8ca0727972e2",
+    "episodes": 4,
+    "independent_accuracy": "not established",
+    "independent_compute_capability": "not detected",
+    "max_structure_retention_steps": 93,
+    "morphology_births": 670,
+    "natural_recolonizations": 3,
+    "occupied_niches_at_end": 1,
+    "pruned_events": 1576,
+    "retained_raw_events": 1024,
+    "seed": 223607,
+    "snapshot_bytes": 3502329,
+    "snapshot_sha256": "14441eb123f9bef0a31ee894feb0868fb006ee69a40de521a566edfbb3f870b1",
+    "sphere_returns": 8,
+    "steps": 2600
+  },
+  "production_selection": "neutral morphology search; predictive performance remains unconfirmed",
+  "protocol": "samo-ecology-v6-morphology",
+  "protocol_hash": "89d85f16a8f39480447c92550910ee756d19fe88f5d310c44ceca0597664af32",
+  "public_endpoints": {
+    "cloudflare_configuration_changed": false,
+    "duckdns": "active; v6 snapshot verified",
+    "pages_dev": "DNS NXDOMAIN; no stale page is served"
+  },
+  "release_source_sha256": "3a63e3e6189761f2ec6b70d2feda47c911dbe856088f658b6983b39324e3fc44",
+  "resource_limits": {
+    "cpu_percent_one_core": 40,
+    "memory_bytes": 512000000,
+    "pids_max": 16,
+    "production_inodes_used": 476,
+    "production_project_available_bytes_after_migration": 850661376,
+    "production_project_fs_bytes": 974434304,
+    "production_project_used_bytes_after_migration": 106995712,
+    "project_usage_after_long_run_fraction": 0.11,
+    "swap_bytes": 0,
+    "test_project_ext4_bytes": 965046272
+  },
+  "source_hash": "178e6e1b0c2f75c957a8bd6c0ef1f3e8d03563569a8e3fe5b0c563f82ccabc6a",
+  "status": "deployed; VPS service and live public snapshot verified",
+  "v5_preservation": {
+    "archive_sha256": "95483b8b6e4adf0bb404c00f08108d269b9ec031c5775c98207e933168fa446f",
+    "sqlite_integrity": "ok"
+  },
+  "vps_migration": {
+    "export_timer": "samo-recorder-export-v6.timer active/enabled",
+    "first_snapshot_step": 3,
+    "new_episode": 0,
+    "protocol": "samo-ecology-v6-morphology",
+    "public_response": "HTTP 200 application/json; Cache-Control no-cache",
+    "result": "complete",
+    "service": "samo-organism-v6.service active/enabled",
+    "snapshot_step_after_35_seconds": 32,
+    "snapshot_updated": true,
+    "technical_restarts": 0
+  },
+  "vps_migration_attempts": {
+    "automatically_rolled_back_before_success": 3,
+    "scientific_v5_state_modified": false,
+    "successful_transition": true,
+    "v5_restart_counter_changed": false,
+    "v5_restored_each_time": true
+  },
+  "vps_preservation": {
+    "integrity": "ok",
+    "v5_checkpoint_bytes": 5738496,
+    "v5_checkpoint_path": "/srv/samo/releases/core-v5/v5-final-before-v6.sqlite",
+    "v5_checkpoint_sha256": "7b2c75db2a613114ad5a18b18467d9ad168682172a18b7e4bc6951008149dfb8",
+    "v5_public_snapshot_path": "/data/archive/v5-final-before-v6.json",
+    "v5_public_snapshot_sha256": "cddb908dc35bcae713abab7640c9c44707ecaee337b46c24956403d7d3dbef0c"
+  }
+}

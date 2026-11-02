@@ -1,0 +1,17 @@
+{
+  "id": "samo-v6-morphology-live-birth-comparison",
+  "status": "pre-registered technical research run; results pending",
+  "protocol_hash_basis": "SHA-256 of this canonical JSON, source hashes and environment manifest stored in each run record",
+  "pilot_seed_exclusion": "integer seeds 0 through 23 are excluded because they were used by the morphology-only pilot",
+  "seeds": [314159, 271828, 161803, 141421, 173205, 223607, 244949, 264575],
+  "replicates_per_arm": 8,
+  "initial_computational_genomes": "fresh registered v4 initial-state generator, one independent seed per paired block; all three arms start from the same seed and compute state",
+  "arms": ["neutral", "novelty", "bounded_archive_diversity"],
+  "primary_outcome": "per-replicate time average of unique active phenotype count across recorded genuine population births; summarized per arm and paired within seed",
+  "secondary_outcomes": ["active niche occupancy", "archive niche occupancy", "spatial span", "sphere returns", "per-line structural retention", "natural extinction and recolonization counts", "morphology fuel", "process CPU nanoseconds", "v4 compute accuracy by family"],
+  "per_replicate_limits": {"max_steps": 600, "cpu_ns": 120000000000, "combined_vm_fuel": 2000000, "morphology_candidate_proposals_per_accepted_birth": 4},
+  "stop_rule": "Stop after the first completed transition at which any registered ceiling is reached; retain that transition and report bounded overshoot. No results are dropped for extinction, no births or low diversity.",
+  "comparison": "paired seeds and byte-identical compute trajectories are required; show all seed-level results, paired differences, mean/median and a two-sided exact sign/permutation summary; exploratory sample only, not a production-efficacy claim",
+  "retention": "per-transition compressed rows and state hashes in one SQLite database; no genotype resurrection; no discarded scientific row without a hash-chain record",
+  "prohibited_inference": "Morphology novelty, phenotype count or niche occupancy is not a prediction capability. Any computational capability requires independent held-out confirmation."
+}

@@ -1,0 +1,9 @@
+[Unit]
+Description=Publish verified SAMO ecosystem observations
+[Timer]
+OnBootSec=45s
+OnUnitActiveSec=30s
+AccuracySec=5s
+Unit=samo-recorder-export.service
+[Install]
+WantedBy=timers.target

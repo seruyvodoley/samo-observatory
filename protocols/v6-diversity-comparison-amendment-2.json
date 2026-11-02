@@ -1,0 +1,13 @@
+{
+  "id": "samo-v6-morphology-live-birth-comparison-amendment-2",
+  "parent_protocol": "v6-diversity-comparison-amendment-1.json",
+  "status": "registered before the exact common-budget endpoint pass",
+  "reason": "The first complete pass recorded total process CPU per replicate, while per-transition telemetry measured the search/development transition before recorder commit. Because durable SQLite writes also consumed CPU, an exact common-budget endpoint needs a process CPU sample after every committed transition.",
+  "changes": {
+    "seed_reuse": "Repeat the same eight paired seeds and three arms only to obtain exact per-commit resource timestamps; these are not new independent replicates and will not be pooled with the prior pass.",
+    "per_step_resource_measurement": "Record time.process_time_ns after the state/event SQLite commit and cumulative v4 plus v2 interpreter fuel at each checkpoint.",
+    "primary_comparison": "For each seed, set common_cpu_ns and common_vm_fuel to the minimum realized terminal amount across its three arms; in each arm select the latest committed state at or below both common limits. Report exact selected CPU/fuel and one-transition granularity.",
+    "other_rules": "The same CPU ceiling of 6,000,000,000 ns, combined VM-fuel ceiling of 2,000,000, step ceiling of 600, three conditions, morphology proposal count and computational seed pairing remain in force."
+  },
+  "preservation": "The first complete pass remains preserved in output/v6-resource-matched-comparison/matched-1/ and is reported separately. This rerun is not used to inflate sample size."
+}

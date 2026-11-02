@@ -1,0 +1,33 @@
+[Unit]
+Description=Publish verified v6 scientific snapshot to the read-only observatory
+Requires=srv-samo.mount
+After=srv-samo.mount
+
+[Service]
+Type=oneshot
+User=samo-export
+Group=samo-data
+Slice=samo-aux.slice
+WorkingDirectory=/srv/samo/releases/core-v6/code
+Environment=PYTHONDONTWRITEBYTECODE=1 TMPDIR=/srv/samo/site/data PYTHONPATH=/srv/samo/releases/core-v6/code
+ExecStart=/usr/bin/python3 -m morphology.runtime_v6 export --db /srv/samo/state/ecology-v6.sqlite --output /srv/samo/site/data/ecosystem.json
+CPUQuota=10%
+MemoryMax=160000000
+MemorySwapMax=0
+TasksMax=4
+LimitCORE=0
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateNetwork=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+RestrictAddressFamilies=AF_UNIX
+ReadOnlyPaths=/srv/samo/state
+ReadWritePaths=/srv/samo/site/data
+UMask=0022
+StandardOutput=null
+StandardError=null

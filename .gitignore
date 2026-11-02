@@ -28,3 +28,11 @@ __pycache__/
 *.tsbuildinfo
 *.log
 *.tgz
+
+# Local Codex/Cloudflare/deployment material is not part of the public source.
+/AGENTS.md
+/SKILLS-VALIDATION-REPORT.md
+/samo-skills.zip
+/skills-lock.json
+/wrangler.jsonc
+/docs/TELEGRAM-WEB-PROXY.md

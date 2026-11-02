@@ -1,0 +1,12 @@
+{
+  "id": "samo-ecology-v6-morphology-pilot-terminology-erratum",
+  "parent_protocol": "ecology-v6-morphology-pilot.json",
+  "registered_at": "2026-11-02",
+  "scope": "terminology only; no seed, data, code result, or scientific outcome changed",
+  "correction": {
+    "previous_terms": ["MAP-Elites-like donor selection", "MAP-Elites archive"],
+    "preferred_term": "bounded archive-based diversity search",
+    "reason": "The archived descriptor cells are not populated by selecting a quality-maximizing elite within each niche. Occupancy is used to favor diversity, so MAP-Elites is not an accurate algorithm name.",
+    "genotype_policy_for_integrated_v6": "The active v6 ecology archive contains descriptors and occupancy counters only. Archived genotypes are never donors and completed lines do not revive."
+  }
+}

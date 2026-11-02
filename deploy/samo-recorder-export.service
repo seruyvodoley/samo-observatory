@@ -1,0 +1,32 @@
+[Unit]
+Description=SAMO independent verified snapshot exporter
+Requires=srv-samo.mount
+After=srv-samo.mount
+[Service]
+Type=oneshot
+User=samo-export
+Group=samo-data
+Slice=samo-aux.slice
+WorkingDirectory=/srv/samo/code
+Environment=PYTHONDONTWRITEBYTECODE=1 TMPDIR=/srv/samo/site/data
+ExecStart=/usr/bin/python3 -m samo.ecology_runtime export --db /srv/samo/state/ecology.sqlite --output /srv/samo/site/data/ecosystem.json
+CPUQuota=10%
+MemoryMax=128000000
+MemorySwapMax=0
+TasksMax=4
+LimitCORE=0
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateNetwork=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+RestrictAddressFamilies=AF_UNIX
+ReadOnlyPaths=/srv/samo/state
+ReadWritePaths=/srv/samo/site/data
+UMask=0022
+StandardOutput=null
+StandardError=null

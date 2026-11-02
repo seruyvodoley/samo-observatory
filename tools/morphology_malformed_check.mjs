@@ -1,0 +1,4 @@
+import {chromium} from '/Users/serg/.npm/_npx/e41f203b7505f1fb/node_modules/playwright/index.mjs';
+import {readFile,writeFile} from 'node:fs/promises';
+const bad=JSON.parse(await readFile('web/public/data/morphology-experiment.json','utf8'));bad.samples[0].phenotype.nodes=Array(257).fill(bad.samples[0].phenotype.nodes[0]);
+const b=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const p=await b.newPage();await p.route('**/data/morphology-experiment.json',r=>r.fulfill({json:bad}));await p.goto('http://127.0.0.1:4176/morphology');await p.getByRole('status').filter({hasText:'Лимит формы'}).waitFor();const result={rejected:true,canvases:await p.locator('canvas').count()};await writeFile('output/morphogenesis/malformed-check.json',JSON.stringify(result));await b.close();

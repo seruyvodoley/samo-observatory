@@ -1,0 +1,30 @@
+# coding: utf-8
+import json,statistics,zipfile,shutil
+from pathlib import Path
+P=Path('output/search-v3-longitudinal');runs=[json.loads(p.read_text()) for p in P.glob('*.json')];assert len(runs)==120, len(runs)
+summary=[]
+for arm in ('gp','meta0','meta20','meta100','frozen20'):
+ for budget in (1,3,10,12):
+  selected=[(r,next(s for s in r['snapshots'] if s['budget']==budget)) for r in runs if r['arm']==arm and len(r['snapshots'])==4]
+  row=dict(arm=arm,budget=budget,n=len(selected),successes={f:sum(any(p[f]==1 for p in s['confirmation']['scores']) for _,s in selected) for f in ('constant','arithmetic','periodic')},cpu_total=sum(s['cpu'] for _,s in selected),fuel_total=sum(s['fuel'] for _,s in selected),external_words=sum(s['external_words'] for _,s in selected),cpu_range=[min(s['cpu'] for _,s in selected),max(s['cpu'] for _,s in selected)])
+  summary.append(row)
+for r in runs:
+ assert all(not e['birth'] or (e['genotype_changed'] and not e['duplicate']) for e in r['events'])
+(P/'summary.txt').write_text(json.dumps(summary,indent=2))
+lines=['# Длительные абляции поиска v3 — 31 октября 2026','', 'Завершены 120 независимых траекторий: 24 seed × 5 условий, с тремя контрольными бюджетами и отдельным продолжением отбора для удержания. Это исследовательская проверка; v3 не переведён в production.','', '| Группа | CPU-бюджет | n | constant | arithmetic | periodic | Реальный CPU, сумма | Fuel, сумма |','|---|---:|---:|---:|---:|---:|---:|---:|']
+for r in summary:lines.append('|'+r['arm']+'|'+str(r['budget'])+'|'+str(r['n'])+'|'+'|'.join(str(r['successes'][f]) for f in ('constant','arithmetic','periodic'))+f"|{r['cpu_total']:.2f}|{r['fuel_total']}|")
+lines+=['','Числа успехов — запуски, в которых хотя бы одна конечная форма дала все правильные ответы семейства на свежих полнодиапазонных задачах. Контрольные точки одной траектории не являются независимыми репликами. Бюджет 12 — продолжение исходного отбора после бюджета 10, а не стресс-проба. CPU включает поиск и отбор, исключает отдельно записанную стоимость подтверждений; fuel содержит исполнение предикторов и search, а случайные поля внешних правок учитываются отдельно как external_words. Пять единиц внешней правки в search_fuel — условная единица исследовательского бюджета, не пять выполненных VM-инструкций.','', 'gp и meta100 оба используют 100% внешний оператор: это проверка совпадающих механизмов, а не независимые виды алгоритмов. meta0 не имеет внешних мутаций; meta20 имеет 20%; frozen20 исполняет неизменный исходный поисковый оператор, но применяет правки к текущему геному без восстановления прежних компонентов.','', 'Оценка использует точное совпадение и нормированную ошибку относительно нулевого и last-value контролей. Вычитание общей базовой ошибки само по себе не меняет delta; различия создаёт плотная ошибка кандидата. Полный 16-битный диапазон уменьшает прежний перекос к малым числам. Нейтральные попытки не отбрасываются и улучшение не гарантируется. Нулевая delta остаётся допустимым исходом.','', 'У исходного организма единственный прогнозный модуль CONST 0. Готовый арифметический алгоритм не вставлялся. HIST, SUB и ADD доступны как отдельные инструкции VM; представимость составного алгоритма подтверждалась отдельным линейным контролем. Появление нового search-кода не считается доказательством полезной метаэволюции.','', 'Все события, отрицательные delta, ошибки, хеши/геномы контрольных точек, задания подтверждений и реальные расходы сохранены. После завершения подтверждающие задания раскрыты и не могут снова использоваться как закрытые. По данным проверен инвариант отсутствия рождения дубликата активного генома.','', 'Ограничение эксперимента: бесплодная попытка сохраняется как неудача, но этот исследовательский движок не моделирует смертность и полное вымирание. Поэтому он не доказывает работоспособность долгосрочной экосистемы. Нужен отдельный событийный движок с версионированным правилом смерти/заселения; production-переход до такой проверки запрещён.','', 'Linux VM samo-acceptance: новый поисковый модуль проверен под CPUQuota=40%, MemoryMax=512000000, MemorySwapMax=0. Вывод фактических cgroup-параметров сохранён. Это не длительная приёмка регистратора и не доказательство безопасности общей инфраструктуры VPS.','', 'Решение: v3 к production не принят. Даже положительный успех составного алгоритма в одной траектории не доказывает преимущества meta; для этого нужны сравнения независимых запусков с учётом стоимости и неопределённости. Долговременная служба не запускается на VPS по результатам одной проверки мутаций. v2 и TunnelDeck не изменялись.']
+signal=json.loads((P/'signal-probe.txt').read_text())['summary'];lines.append('Диагностика сигнала: '+json.dumps(signal,ensure_ascii=False));
+from samo.search_v3 import founder
+from samo.genome import digest
+for arm in ('gp','meta0','meta20','meta100','frozen20'):
+ r=[v for v in runs if v['arm']==arm];changed=sum(any(digest(g['search'])!=digest(founder()['search']) for g in v['snapshots'][2]['population']) for v in r);lines.append(f'{arm}: к бюджету 10 секунд изменённый search в конечной популяции у {changed}/24 запусков. Это структурное изменение, не доказательство полезности.');
+ for family in ('constant','arithmetic','periodic'):
+  start=[v for v in r if any(p[family]==1 for p in v['snapshots'][2]['confirmation']['scores'])];held=sum(any(p[family]==1 for p in v['snapshots'][3]['confirmation']['scores']) for v in start);lines.append(f'{arm}, {family}: удержание после дополнительного отбора {held}/{len(start)} ранее успешных запусков.');
+Path('docs/search-v3-longitudinal-2026-10-31.md').write_text('\n'.join(lines))
+for src in ['/tmp/samo-v3-linux-check.log','/tmp/samo-v3-linux-limits.log']:shutil.copy(src,P/Path(src).name)
+with zipfile.ZipFile('output/search-v3-longitudinal.zip','w',zipfile.ZIP_DEFLATED) as z:
+ for path in [P,Path('docs/search-v3-longitudinal-2026-10-31.md'),Path('protocols/search-v3-longitudinal.json'),Path('samo/search_v3.py'),Path('tools/search_v3_longitudinal.py')]:
+  for f in (path.rglob('*') if path.is_dir() else [path]):
+   if f.is_file():z.write(f,str(f))
+print(json.dumps(summary,indent=2))
