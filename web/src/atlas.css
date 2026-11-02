@@ -414,6 +414,44 @@ html:is([data-route="life"],[data-route="organism"],[data-route="evolution"],[da
 .event-recolonization .event-marker{background:#d5aa65;box-shadow:0 0 0 3px rgba(213,170,101,.2)}
 @media(max-width:640px){.lineage-guide{gap:.55rem .9rem}.lineage-guide>span{font-size:.75rem}.life-latest-note,.lineage-archive-note{font-size:.9rem}.lineage-row .lineage-state{font-size:.78rem}.spatial-overlay{right:.5rem;bottom:5.5rem;left:.5rem}.lineage-chart-legend{gap:.35rem .65rem;max-width:100%;padding:.45rem}.lineage-chart-legend>span{font-size:.68rem;white-space:normal}}
 
+/* The history graph and its selected saved form stay together as one explorer. */
+.atlas-site .lineage-hero{display:block;padding-bottom:.5rem}
+.atlas-site .lineage-hero .hero-copy{max-width:72rem}
+.atlas-site .lineage-workspace{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(20rem,.9fr);gap:clamp(1.5rem,4vw,4rem);align-items:start;margin:1.5rem 0 3rem}
+.atlas-site .lineage-graph-stage,.atlas-site .lineage-detail-stage{min-width:0}
+.atlas-site .lineage-chart-scroll{width:100%;overflow-x:auto;border:1px solid var(--atlas-line);background:var(--atlas-paper);overscroll-behavior-inline:contain}
+.atlas-site .lineage-chart{display:block;width:100%;min-width:560px;height:auto;aspect-ratio:960/430}
+.atlas-site .lineage-chart-axis{stroke:var(--atlas-line);stroke-width:2}
+.atlas-site .lineage-axis-label{fill:var(--atlas-secondary);font:500 16px/1.4 "Manrope Variable",sans-serif}
+.atlas-site .lineage-chart-edge{stroke:#66877d;stroke-width:2;opacity:.62}
+.atlas-site .lineage-chart-node{cursor:pointer;outline:none}
+.atlas-site .lineage-chart-node circle:first-child{stroke:var(--atlas-paper);stroke-width:2;transition:r .18s,filter .18s}
+.atlas-site .lineage-chart-node-ring{fill:none;stroke:transparent;stroke-width:3}
+.atlas-site .lineage-chart-node:hover circle:first-child,.atlas-site .lineage-chart-node:focus-visible circle:first-child{filter:brightness(1.15);stroke:var(--atlas-ink);stroke-width:3}
+.atlas-site .lineage-chart-node.is-selected .lineage-chart-node-ring{stroke:var(--atlas-ink)}
+.atlas-site .lineage-stage-heading{min-height:5.8rem;margin-bottom:.6rem}
+.atlas-site .lineage-stage-heading .eyebrow{margin:0 0 .3rem;color:var(--atlas-ink)!important;font-weight:700}
+.atlas-site .lineage-stage-heading p:last-child{max-width:58ch;margin:.2rem 0;color:var(--atlas-secondary)}
+.atlas-site .lineage-detail-stage{position:sticky;top:6.2rem;padding:1rem;border:1px solid var(--atlas-line);background:var(--atlas-bg)}
+.atlas-site .lineage-detail-stage .lineage-stage-heading{min-height:0}
+.atlas-site .lineage-detail-stage .live-morphology .morph-stage{height:clamp(290px,31vw,390px);min-height:290px}
+.atlas-site .lineage-detail-stage .live-morphology .morph-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+.atlas-site .lineage-detail-stage .live-form-title{min-height:0}
+.atlas-site .lineage-no-form{min-height:14rem;display:flex;flex-direction:column;justify-content:center;padding:1.2rem;border:1px dashed var(--atlas-line);background:var(--atlas-paper)}
+.atlas-site .lineage-no-form h2{font-size:1.6rem!important}
+.atlas-site .lineage-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem;border:0}
+.atlas-site button.lineage-row{width:100%;min-width:0;text-align:left;font:inherit;color:var(--atlas-ink);background:transparent;cursor:pointer}
+.atlas-site .lineage-row{grid-template-columns:minmax(0,.7fr) minmax(0,1.6fr) minmax(8rem,.9fr) auto;gap:.7rem;padding:.9rem;border:1px solid var(--atlas-line);transition:background-color .18s,border-color .18s}
+.atlas-site .lineage-row:hover,.atlas-site .lineage-row:focus-visible{border-color:var(--atlas-green);background:var(--atlas-paper);outline:none}
+.atlas-site .lineage-row.is-selected{border-color:var(--atlas-green);background:rgba(52,117,104,.1);box-shadow:inset 3px 0 var(--atlas-green)}
+.atlas-site .lineage-row .lineage-age{color:var(--atlas-secondary);font-size:14px!important}
+.atlas-site .lineage-row strong{overflow-wrap:anywhere;font-size:15px}
+.atlas-site .lineage-row small{font-size:13px!important;line-height:1.45}
+.atlas-site .lineage-row .lineage-state{font-size:13px}
+.atlas-site .lineage-select-label{color:var(--atlas-green);font-size:14px;font-weight:700}
+@media(max-width:900px){.atlas-site .lineage-workspace{grid-template-columns:minmax(0,1fr) minmax(18rem,.9fr);gap:1.25rem}.atlas-site .lineage-list{grid-template-columns:1fr}}
+@media(max-width:760px){.atlas-site .lineage-workspace{display:flex;flex-direction:column;gap:1.2rem;margin:1rem 0 2rem}.atlas-site .lineage-graph-stage,.atlas-site .lineage-detail-stage{width:100%}.atlas-site .lineage-chart{min-width:760px}.atlas-site .lineage-detail-stage{position:static;padding:.85rem}.atlas-site .lineage-detail-stage .live-morphology .morph-stage{height:340px;min-height:300px}.atlas-site .lineage-stage-heading{min-height:0;margin-bottom:.5rem}.atlas-site .lineage-row{grid-template-columns:minmax(0,1fr) auto;gap:.4rem .75rem}.atlas-site .lineage-row>span:nth-child(2){grid-column:1/-1;grid-row:1}.atlas-site .lineage-row .lineage-age{grid-column:1;grid-row:2}.atlas-site .lineage-row .lineage-state{grid-column:2;grid-row:2}.atlas-site .lineage-select-label{grid-column:1/-1;grid-row:3}}
+
 /* Memory selection stays readable above its quantitative bar. */
 .atlas-site .memory-grid button>i{opacity:.3;pointer-events:none}
 .atlas-site .memory-grid button>span,.atlas-site .memory-grid button>strong,.atlas-site .memory-grid button>small{position:relative;z-index:1}
