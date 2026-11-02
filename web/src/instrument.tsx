@@ -3,7 +3,7 @@ import type {Genome,Code} from './data';
 import {OPS} from './data';
 import {CodeView} from './components';
 import type {Morphology} from './morphology-data';
-export type Form={morphology?:Morphology;identity_hash?:string;id:string;hash:string;genome:Genome;born:number;parents:string[];accepted?:boolean};
+export type Form={morphology?:Morphology;identity_hash?:string;organism_id?:string;id:string;hash:string;genome:Genome;born:number;parents:string[];accepted?:boolean};
 export function checkGenome(g:Genome){
  const valid=(c:unknown):boolean=>Array.isArray(c)&&c.length<=96&&c.every(i=>Array.isArray(i)&&i.length===2&&Number.isInteger(i[0])&&i[0]>=0&&i[0]<19&&Number.isInteger(i[1])&&Math.abs(i[1])<=65535);
  if(!g||g.abi!==1||!Array.isArray(g.modules)||g.modules.length<1||g.modules.length>8||!g.modules.every(valid)||!valid(g.search)||!valid(g.router)||!Array.isArray(g.dialect)||g.dialect.length!==4||!g.dialect.every(valid)||!Array.isArray(g.memory)||g.memory.length>64||g.memory.some(v=>!Number.isInteger(v)||v<0||v>65535))throw Error('Invalid displayed genome');

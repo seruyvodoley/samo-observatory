@@ -21,14 +21,15 @@ export const LINEAGE_LABELS:Record<LineageState,string>={
 };
 
 export function lineageStates(forms:Form[],activeForms:Form[],events:{lifecycle:{kind:string;id?:string}[]}[],episodes:{episode:number;reason:string;ended_at:number|null}[]=[]):Map<string,LineageState>{
- const active=new Set(activeForms.map(form=>form.id));
+ const organismId=(form:Form)=>form.organism_id||form.id;
+ const active=new Set(activeForms.map(organismId));
  const children=new Set(forms.flatMap(form=>form.parents));
  const died=new Set(events.flatMap(event=>event.lifecycle.filter(item=>item.kind==='death'&&item.id).map(item=>item.id!)));
  const extinctEpisodes=new Set(episodes.filter(episode=>episode.ended_at!==null&&episode.reason==='extinction').map(episode=>episode.episode));
  return new Map(forms.map(form=>{
-  const hasChildren=children.has(form.id),hasDied=died.has(form.id);
-  const match=form.id.match(/-e(\d+)-/),episodeEnded=!!match&&extinctEpisodes.has(Number(match[1]));
-  const state:LineageState=form.accepted===false?'rejected':active.has(form.id)?'active':hasDied&&hasChildren?'displaced':hasChildren?'ancestor':episodeEnded?'ended':'unknown';
+  const id=organismId(form),hasChildren=children.has(id),hasDied=died.has(id);
+  const match=id.match(/-e(\d+)-/),episodeEnded=!!match&&extinctEpisodes.has(Number(match[1]));
+  const state:LineageState=form.accepted===false?'rejected':active.has(id)?'active':hasDied&&hasChildren?'displaced':hasChildren?'ancestor':episodeEnded?'ended':'unknown';
   return [form.id,state];
  }));
 }
