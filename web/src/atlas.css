@@ -34,6 +34,7 @@
 .atlas-utility .eyebrow{margin:0}
 .atlas-status{display:flex;align-items:center;gap:.48rem;color:#546a62;font:500 .65rem/1.4 "Manrope Variable",sans-serif}
 .atlas-status .status-time{margin-left:.45rem;color:#708078}
+.protocol-note{max-width:58rem;margin:.35rem 0 0;color:var(--atlas-secondary);font-size:.84rem;line-height:1.55}
 .status-dot{width:.43rem;height:.43rem;flex:0 0 auto;border-radius:50%;background:#497f78}
 .atlas-status.is-stale .status-dot{background:#a3853d}
 .atlas-hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);align-items:center;gap:2.6rem;min-height:min(45rem,calc(100svh - 7rem));padding:1.5rem 0 3.8rem;border-bottom:1px solid var(--atlas-line)}
