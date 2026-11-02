@@ -98,10 +98,12 @@ def lineage_snapshot(recorder: Recorder) -> dict:
         if morphology and isinstance(morphology.get("phenotype_payload"), str):
             raw = morphology.pop("phenotype_payload").encode("utf-8")
             morphology["phenotype_payload_gzip"] = base64.b64encode(gzip.compress(raw, mtime=0)).decode("ascii")
+    payload = {"step": state["core"]["step"], "forms": records,
+               "truncated": truncated, "missing_parent_ids": sorted(missing)}
+    payload_raw = canonical(payload)
     data = {"schema": 1, "protocol": PROTOCOL, "source_hash": source_hash(), "step": state["core"]["step"],
-            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "forms": records,
-            "truncated": truncated, "missing_parent_ids": sorted(missing)}
-    data["snapshot_id"] = digest(data)
+            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "forms_payload": payload_raw.decode("utf-8"), "snapshot_id": digest(payload)}
     if len(canonical(data)) > MAX_BYTES:
         raise ValueError("lineage snapshot size ceiling")
     return data

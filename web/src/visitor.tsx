@@ -7,7 +7,7 @@ import {CodeView} from './components';
 import type {Eco} from './ecosystem';
 import type {Form} from './instrument';
 import {date,num,pct,family} from './i18n';
-import {focusGenomeComponent,focusGenomeMemory,SpaceAnchor} from './observatory3d';
+import {focusGenomeComponent,focusGenomeMemory,resetGenomeView,SpaceAnchor} from './observatory3d';
 import {buildGenomeGeometry,genomeSummary,type GeometryPart} from './genome-geometry';
 import {lineageStates,LINEAGE_LABELS,LINEAGE_COLORS} from './lineage';
 
@@ -50,7 +50,7 @@ function GenomeExplorer({form,onSelect}:{form:Form;onSelect:(id:string)=>void}){
  const selectedPart=parts.find(p=>p.part===focus.part&&p.index===focus.index)||parts[0];const instructions=selectedPart?.code||[];
  return <section className="program-explorer" aria-label="Части программы">
   <div className="explorer-intro"><p className="eyebrow">Рассмотреть состав</p><h2>Из каких частей собран вариант</h2><p>Выберите часть, чтобы увидеть её в 3D и открыть точную запись. Для пустых частей останется видна программа целиком.</p></div>
-  <div className="part-selector">{parts.map(p=><button key={`${p.part}-${p.index}`} aria-pressed={focus.part===p.part&&focus.index===p.index} onClick={()=>{onSelect(form.id);setFocus({part:p.part,index:p.index});focusGenomeComponent(p.part,p.index);if(innerWidth<=760)requestAnimationFrame(()=>document.querySelector('.program-sticky-stage')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'}));}}><i style={{background:partColors[p.part]}}/><span>{p.name}</span><b>{p.code.length}</b></button>)}</div>
+  <div className="part-selector">{parts.map(p=><button key={`${p.part}-${p.index}`} aria-pressed={focus.part===p.part&&focus.index===p.index} onClick={()=>{onSelect(form.id);setFocus({part:p.part,index:p.index});if(p.code.length)focusGenomeComponent(p.part,p.index);else resetGenomeView();if(innerWidth<=760)requestAnimationFrame(()=>document.querySelector('.program-sticky-stage')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'}));}}><i style={{background:partColors[p.part]}}/><span>{p.name}</span><b>{p.code.length}</b></button>)}</div>
   {selectedPart&&<div className="code-reveal"><div><p className="eyebrow">Точная запись генома</p><h3>{selectedPart.name}</h3><p>{selectedPart.code.length} {selectedPart.part==='memory'?'чисел':'команд'} в сохранённой записи. Визуальная сцена повторяет адреса, типы команд и связи этого генома.</p></div>{selectedPart.code.length===0?<p className="empty-component-note" role="status">{selectedPart.part==='memory'?'В памяти пока нет значений.':'В этой части пока нет команд.'} Показываем программу целиком.</p>:<details><summary>Показать данные {selectedPart.part==='memory'?'памяти':'программы'}</summary>{selectedPart.part==='memory'?<p className="memory-raw">{form.genome.memory.map((v,i)=>`${i+1}: ${v}`).join(' · ')}</p>:<CodeView code={instructions as Code}/>}</details>}</div>}
  </section>;
 }
