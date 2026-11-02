@@ -1,0 +1,50 @@
+{
+  "id": "samo-ecology-v7-morphology",
+  "version": 5,
+  "status": "registered isolated research candidate; not production approved",
+  "preregistration": "Version 5 is frozen before end-to-end UI and durability acceptance. Interrupted v1-v4 pilots are retained as diagnostic evidence but excluded from confirmatory comparisons: v1 was interrupted over a false step-zero morphology concern (the empty initial population is intentional); v2 lacked a continuous runtime; v3 changed while aligning the public snapshot schema; v4 changed after direct route QA found inaccurate privacy copy. Any further changes require protocol version 6 and exclude earlier data from confirmatory use.",
+  "questions": [
+    "Does v3 produce visibly distinguishable inherited silhouettes across genuine computational births at matched total CPU and VM-fuel budgets?",
+    "Does a separately logged within-lineage morphology event preserve structural features without changing the computational genome or its evaluation?",
+    "Do these changes alter independent computational predictive ability? No improvement is assumed."
+  ],
+  "frozen_compute_core": "samo-ecology-v4; v7 arms invoke the same transition and must have byte-identical computational state/events on their shared step prefix. Morphology fitness is never passed to compute evaluation or selection.",
+  "morphogenesis": "samo-morphogenesis-3; bounded inherited rule graph with move, orientation, scale, emit, call, repeat, computational data binding, material, branch, mirror emit, taper and connect instructions.",
+  "population": {"size": 4, "mode": "meta", "initial_state": "The frozen v4 core starts with an empty population. Its first transition records a founding episode and creates computational founders; v3 morphology programs are generated and registered for those actual founder events before the state is exported.", "recolonization": "fresh seeded computational founders and fresh stochastic morphology rule graphs; no archive genotype donors and no revival of extinct organisms"},
+  "arms": {
+    "v6_neutral": "Unmodified v6 neutral control.",
+    "v7_neutral": "One uniformly sampled mutation per accepted compute birth; morphology selection does not consult task fitness.",
+    "v7_novelty": "Four mutation proposals per accepted compute birth; choose the greatest minimum orthographic-silhouette distance from current active forms; seeded random tie break.",
+    "v7_live_niche_search": "Four proposals; choose a least-occupied active morphology descriptor cell, with silhouette distance as tie break. This does not alter compute-parent or survivor selection.",
+    "v7_niche_survival": "Explicit computational-selection intervention: if a proposed accepted birth would remove the last living representative of its morphology descriptor cell, veto that replacement, retain the incumbent and log the veto. This may alter compute trajectories and capability outcomes; its compute-state divergence is expected and not a replay failure.",
+    "v7_archive_diversity": "Four proposals; choose the least-recorded descriptor cell in a 64-cell descriptor-only archive; distance breaks ties. This is not MAP-Elites and stores no donor genotypes.",
+    "v7_dual_rate": "One uniformly sampled mutation at actual compute births plus a separate Bernoulli(1/8) morphology-only event per compute transition. The event retains the organism ID, records old/new morphology hashes, and is inherited by its later compute offspring."
+  },
+  "independent_units": "eight paired fresh seed blocks; each block starts all arms from the same fresh v4 computational state and independent registered morphology RNG. Seed blocks, not transitions or organisms, are the statistical units.",
+  "seeds": [615173, 742901, 893047, 1047293, 1186327, 1327219, 1474583, 1628171],
+  "budget_tiers": [
+    {"name":"short","max_completed_compute_transitions":100,"max_combined_vm_fuel":150000,"max_process_cpu_ns":6000000000},
+    {"name":"medium","max_completed_compute_transitions":400,"max_combined_vm_fuel":600000,"max_process_cpu_ns":30000000000},
+    {"name":"long","max_completed_compute_transitions":1600,"max_combined_vm_fuel":2000000,"max_process_cpu_ns":120000000000}
+  ],
+  "resource_enforcement": {"cpu_quota_percent_one_core":40,"memory_max_bytes":512000000,"swap_max_bytes":0,"tasks_max":32},
+  "runtime": {"entrypoint":"python -m morphology.runtime_v7 run","checkpoint":"SQLite checkpoint is committed transactionally after each complete transition; startup validates protocol and source hashes before resuming.","termination":"SIGTERM/SIGINT stop after the current transition has been committed and exported.","publication":"Only a schema-1 static JSON snapshot accepted by the current React verifier is atomically replaced; historical morphology-only versions receive distinct view identities while retaining their organism lineage ID. No public organism-control API exists.","acceptance":"Run for bounded transitions, terminate the service, verify checkpoint and database integrity, restart from the same database, and confirm the step continues without episode reset. Validate every active and historical form in a browser build before production consideration."},
+  "stop_rule": "For each seed-arm-budget replicate, stop after the first complete transition that reaches or crosses a registered ceiling; report fuel/CPU overshoot and completed steps. Never truncate or drop a failed or extinct replicate.",
+  "outcomes": {
+    "primary": ["mean active silhouette-distinct forms over completed observations", "mean active occupied morphology niches"],
+    "secondary_morphology": ["exact phenotype hashes", "three-view silhouette distances", "radius of gyration", "anisotropy", "connected components", "all-sphere fraction", "spatially-compact fraction", "feature inheritance depth", "feature recurrence", "natural extinctions", "recolonizations", "failed/neutral mutations", "CPU nanoseconds", "morphology interpreter fuel"],
+    "computation": ["training exact-match, normalized numerical error, bit accuracy by family", "independent sealed confirmation status", "accuracy losses after inheritance and recolonization"],
+    "no_scalar_progress_score": true
+  },
+  "metric_definitions": {
+    "all_sphere": "A phenotype has at least one node and every node has primitive shape 0.",
+    "spatially_compact": "A phenotype has nodes, 3D center-of-mass radius of gyration below 0.18 model units, and coordinate bounding-box diagonal below 0.45 model units. This is a registered geometric threshold and is reported separately from all-sphere geometry.",
+    "spatial_collapse_event": "A genuine birth or within-lineage event whose child spatial span is below 40% of its parent's nonzero span.",
+    "silhouette": "Fixed 16x16 occupancy rasters from XY, XZ and YZ projections; the shape hash ignores node identity and color. Exact geometry and silhouette metrics are both reported.",
+    "feature_inheritance": "A matching per-view silhouette or shape-distribution hash is inherited from the immediate living parent; its age increments only while that exact feature is present in consecutive recorded descendant changes."
+  },
+  "analysis": "Report every seed-arm row, denominator, failures and extinctions. Compare paired seed-block differences; use exact sign/permutation summaries with intervals, Holm correction for the two primary morphology outcomes, and label n=8 as exploratory. Do not treat within-run observations as independent or infer equivalence from nonsignificance.",
+  "replay_and_intervention": "Record canonical protocol hash, source hash, environment, seed, PRNG state, per-transition decision/state hashes, actual process CPU time, core fuel and morphology fuel. The v6 reference is immutable. The v3 language, separate morphology RNG, extra morphology-only event, and v7_niche_survival selection veto are registered interventions; no compute fitness, evaluator, task generator, or security control change is permitted.",
+  "retention": {"recent_event_rows": 1024, "public_snapshot_event_window": 128, "public_snapshot_historical_form_window": 8, "feature_history_keys": 512, "descriptor_cells": 64, "checkpoint_state_bytes_max": 2000000, "sqlite_database_bytes_max": 64000000, "public_snapshot_bytes_max": 4000000, "whole_project_filesystem_max_bytes": 1000000000, "matrix_archive_max_bytes": 800000000, "raw_event_pruning": "Hash-chain commitment; retain fixed aggregate counters and explicit prune ranges. No unbounded per-phenotype dictionary. Snapshot window omissions are counted and their first visible event is stated. Preserve each replicate database and failure row within the aggregate archive ceiling."},
+  "interpretation": "Morphology diversity is not a predictive ability. New compute capability requires a separately frozen independent task set, exact artifacts, comparison to the v6 ancestor and controls, and retention testing. A failed or non-significant result remains a valid finding."
+}

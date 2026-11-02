@@ -5,7 +5,7 @@ export type Morphology={interpreter:string;morphology_genome:unknown;morphology_
 export function canonical(x:unknown):string{if(Array.isArray(x))return '['+x.map(canonical).join(',')+']';if(x&&typeof x==='object')return '{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical((x as Record<string,unknown>)[k])).join(',')+'}';return JSON.stringify(x);}
 export async function sha(raw:string){const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 export async function verifyMorphology(m:Morphology,g:Genome){
- if(!m||!['samo-morphogenesis-1','samo-morphogenesis-2'].includes(m.interpreter)||typeof m.phenotype_payload!=='string'||m.phenotype_payload.length>300000||!/^[a-f0-9]{64}$/.test(m.phenotype_hash))throw Error('Неподдерживаемая морфология');
+ if(!m||!['samo-morphogenesis-1','samo-morphogenesis-2','samo-morphogenesis-3'].includes(m.interpreter)||typeof m.phenotype_payload!=='string'||m.phenotype_payload.length>300000||!/^[a-f0-9]{64}$/.test(m.phenotype_hash))throw Error('Неподдерживаемая морфология');
  if(await sha(canonical(m.morphology_genome))!==m.morphology_hash||await sha(m.phenotype_payload)!==m.phenotype_payload_hash)throw Error('Контрольная сумма формы не совпадает');
  const p=JSON.parse(m.phenotype_payload) as Phenotype;
  if(p.version!==m.interpreter||!Array.isArray(p.nodes)||p.nodes.length>256||!Array.isArray(p.edges)||p.edges.length>1024)throw Error('Лимит геометрии');
