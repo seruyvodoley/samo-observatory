@@ -73,6 +73,27 @@ export function buildAnatomyNodes(genome:Genome,bodyNodes:readonly {binding:stri
  return [...geometry.instructions.map(x=>{const binding=`${x.part}:${x.partIndex}`,d=offset(binding,geometry.components.find(c=>c.part===x.part&&c.index===x.partIndex)?.center||{x:0,y:0,z:0});return{id:`${binding}/instruction:${x.index}`,binding,position:[x.position.x+d.x,x.position.y+d.y,x.position.z+d.z],scale:.07,shape:x.shape%4,material:anatomyHue(binding),decorative:false,rotation:x.rotation};}),...geometry.memory.map(x=>{const d=offset('memory:0',componentCenter('memory',0,genome.modules.length));return{id:`memory:${x.index}`,binding:'memory:0',position:[x.position.x+d.x,x.position.y+d.y,x.position.z+d.z],scale:.06+x.scale*.03,shape:1,material:anatomyHue('memory:0'),decorative:false};})];
 }
 
+/** Explicit genome relations for the anatomy view; body silhouette is intentionally not part of this scene. */
+export function buildAnatomyLinks(genome:Genome,bodyNodes:readonly {binding:string;position:number[];decorative:boolean}[]=[]):[number[],number[]][]{
+ const geometry=buildGenomeGeometry(genome),nodes=buildAnatomyNodes(genome,bodyNodes),positions=new Map(nodes.map(n=>[n.id,n.position]));
+ const anchors=new Map(bodyNodes.filter(n=>!n.decorative).map(n=>[n.binding,n.position]));
+ const componentPosition=(part:GeometryPart,index:number)=>{const key=`${part}:${index}`,saved=anchors.get(key);if(saved)return saved;const center=componentCenter(part,index,genome.modules.length);return[center.x,center.y,center.z];};
+ const links:[number[],number[]][]=[];
+ for(const c of geometry.components){
+  for(let i=0;i+1<c.code.length;i++){
+   const from=positions.get(`${c.part}:${c.index}/instruction:${i}`),to=positions.get(`${c.part}:${c.index}/instruction:${i+1}`);if(from&&to)links.push([from,to]);
+  }
+  c.code.forEach(([op,arg],i)=>{
+   if((op===11||op===12)&&c.code.length){const target=((arg%(c.code.length+1))+c.code.length+1)%(c.code.length+1),from=positions.get(`${c.part}:${c.index}/instruction:${i}`),to=target<c.code.length?positions.get(`${c.part}:${c.index}/instruction:${target}`):undefined;if(from&&to&&target!==i+1)links.push([from,to]);}
+   if(op===15&&genome.dialect.length){const target=((arg%genome.dialect.length)+genome.dialect.length)%genome.dialect.length,from=positions.get(`${c.part}:${c.index}/instruction:${i}`);if(from)links.push([from,componentPosition('dialect',target)]);}
+   if((op===2||op===17)&&genome.memory.length&&(op===2||arg>=0)){const target=((arg%genome.memory.length)+genome.memory.length)%genome.memory.length,from=positions.get(`${c.part}:${c.index}/instruction:${i}`),to=positions.get(`memory:${target}`);if(from&&to)links.push([from,to]);}
+  });
+ }
+ const router=geometry.instructions.filter(x=>x.part==='router').at(-1),routerPosition=router?positions.get(`router:0/instruction:${router.index}`):componentPosition('router',0);
+ if(routerPosition)for(let i=0;i<genome.modules.length;i++)links.push([routerPosition,componentPosition('module',i)]);
+ return links;
+}
+
 export function genomeSummary(g:Genome):string{
  const geometry=buildGenomeGeometry(g);
  const instructionsByPart=(part:GeometryPart)=>geometry.instructions.filter(x=>x.part===part).length;

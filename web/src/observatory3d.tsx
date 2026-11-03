@@ -6,7 +6,7 @@ import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import {useEcology,selectObservedForm,type EcoEvent} from './ecosystem';
 import type {Form} from './instrument';
-import {anatomyHue,buildAnatomyNodes,buildGenomeGeometry,describeInstruction,type AnatomyNode,type GeometryPart,type Vec3} from './genome-geometry';
+import {buildAnatomyLinks,buildAnatomyNodes,buildGenomeGeometry,describeInstruction,type AnatomyNode,type GeometryPart,type Vec3} from './genome-geometry';
 import {lineageStates,LINEAGE_COLORS,type LineageState} from './lineage';
 import './observatory3d.css';
 
@@ -90,8 +90,8 @@ function makeLineageFormGroup(T:ThreeModule,form:Form,geometries:Three.BufferGeo
  const model=buildGenomeGeometry(form.genome),group=new T.Group();group.name=`${view}-${form.id}`;group.userData.formId=form.id;group.userData.genomeHash=form.hash;group.userData.view=view;
  const owned:Three.Material[]=[];group.userData.ownedMaterials=owned;
  const phenotype=form.morphology?.phenotype;const bodyNodes=phenotype?.nodes||[];const nodes:AnatomyNode[]=view==='appearance'?(bodyNodes.length?bodyNodes:[]):buildAnatomyNodes(form.genome,bodyNodes);const positions=new Map<string,Vec3>();
- if(view==='anatomy'&&bodyNodes.length){for(const node of bodyNodes){const material=new T.MeshBasicMaterial({color:new T.Color().setHSL(anatomyHue(node.binding)/360,.38,.42),transparent:true,opacity:node.decorative?.075:.15,depthWrite:false});owned.push(material);const mesh=new T.Mesh(geometries[node.shape%geometries.length],material);mesh.position.fromArray(node.position);mesh.scale.setScalar(node.scale);mesh.renderOrder=-1;mesh.userData.formId=form.id;group.add(mesh);}}
  for(const node of nodes){const geo=geometries[node.shape%geometries.length];if(!geo)continue;const material=new T.MeshPhysicalMaterial({color:new T.Color().setHSL(node.material/360,.4,node.decorative?.45:.62),roughness:.26,metalness:.45,clearcoat:1});owned.push(material);const mesh=new T.Mesh(geo,material);mesh.position.fromArray(node.position);mesh.scale.setScalar(node.scale);if(node.rotation!==undefined)mesh.rotation.set(node.rotation*.31,node.rotation,node.rotation*.57);mesh.renderOrder=1;mesh.userData.formId=form.id;mesh.userData.nodeId=node.id;group.add(mesh);positions.set(node.id,{x:node.position[0],y:node.position[1],z:node.position[2]});}
+ if(view==='anatomy'){const edges: [Vec3,Vec3][] = buildAnatomyLinks(form.genome,bodyNodes).map(([a,b])=>[{x:a[0],y:a[1],z:a[2]},{x:b[0],y:b[1],z:b[2]}]);const lines=makeLine(T,new T.Scene(),edges,0x8fc5cb,.58);if(lines){lines.name='anatomy program connections';lines.removeFromParent();group.add(lines);}}
  if(view==='appearance'&&phenotype?.edges?.length){const edges:[Vec3,Vec3][]=[];for(const [from,to] of phenotype.edges){const a=positions.get(from),b=positions.get(to);if(a&&b)edges.push([a,b]);}const lines=makeLine(T,new T.Scene(),edges,0x8fc5cb,.65);if(lines){lines.name='inherited form connections';lines.removeFromParent();group.add(lines);}}
  return{group,model};
 }
