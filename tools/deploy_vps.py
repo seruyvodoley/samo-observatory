@@ -9,9 +9,9 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# The deployment key is restricted to this directory by rrsync, so the remote
-# path must be relative to its locked root.
-DEST = "./"
+# The deployment identity has normal SSH access. Publish only to the static
+# origin directory; the live scientific data subdirectory is excluded below.
+DEST = "/srv/samo/site/"
 
 
 def run(*args: str) -> None:
