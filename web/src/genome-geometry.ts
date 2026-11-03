@@ -6,6 +6,9 @@ export type ComponentRef={part:GeometryPart;index:number;code:number[][];name:st
 export type InstructionRef={part:GeometryPart;partIndex:number;index:number;opcode:number;argument:number;position:Vec3;shape:number;rotation:number};
 export type MemoryRef={index:number;value:number;position:Vec3;scale:number};
 export type GenomeGeometry={components:ComponentRef[];instructions:InstructionRef[];memory:MemoryRef[];orderEdges:[Vec3,Vec3][];branchEdges:[Vec3,Vec3][];dialectCalls:{from:Vec3;to:Vec3;dialect:number}[];possibleRoutes:[Vec3,Vec3][];instructionCount:number};
+export type AnatomyNode={id:string;binding:string;position:number[];scale:number;shape:number;material:number;decorative:boolean;rotation?:number};
+const ANATOMY_HUES:Record<string,number>={module:169,router:162,search:268,dialect:151,memory:70};
+export function anatomyHue(binding:string):number{return ANATOMY_HUES[binding.split(':')[0]]??169;}
 
 const GOLDEN=2.399963229728653;
 const TAU=Math.PI*2;
@@ -61,6 +64,13 @@ export function buildGenomeGeometry(genome:Genome):GenomeGeometry{
  const routeCodeEnd=router.code.length?pointFor(router.center,'router',0,router.code.length-1,router.code.at(-1)![0],router.code.at(-1)![1],router.code.length):router.center;
  const possibleRoutes=genome.modules.map((_,index):[Vec3,Vec3]=>[routeCodeEnd,moduleCenter(index,genome.modules.length)]);
  return{components,instructions,memory,orderEdges,branchEdges,dialectCalls,possibleRoutes,instructionCount};
+}
+
+/** Place code and memory around their matching inherited body anchors when available. */
+export function buildAnatomyNodes(genome:Genome,bodyNodes:readonly {binding:string;position:number[];decorative:boolean}[]=[]):AnatomyNode[]{
+ const geometry=buildGenomeGeometry(genome),anchors=new Map(bodyNodes.filter(n=>!n.decorative).map(n=>[n.binding,n.position]));
+ const offset=(binding:string,center:Vec3)=>{const p=anchors.get(binding);return p?{x:p[0]-center.x,y:p[1]-center.y,z:p[2]-center.z}:{x:0,y:0,z:0};};
+ return [...geometry.instructions.map(x=>{const binding=`${x.part}:${x.partIndex}`,d=offset(binding,geometry.components.find(c=>c.part===x.part&&c.index===x.partIndex)?.center||{x:0,y:0,z:0});return{id:`${binding}/instruction:${x.index}`,binding,position:[x.position.x+d.x,x.position.y+d.y,x.position.z+d.z],scale:.07,shape:x.shape%4,material:anatomyHue(binding),decorative:false,rotation:x.rotation};}),...geometry.memory.map(x=>{const d=offset('memory:0',componentCenter('memory',0,genome.modules.length));return{id:`memory:${x.index}`,binding:'memory:0',position:[x.position.x+d.x,x.position.y+d.y,x.position.z+d.z],scale:.06+x.scale*.03,shape:1,material:anatomyHue('memory:0'),decorative:false};})];
 }
 
 export function genomeSummary(g:Genome):string{
