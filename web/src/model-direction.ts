@@ -22,7 +22,7 @@ function load():ModelDirection{
 export function getModelDirection():ModelDirection{return [...direction] as ModelDirection;}
 function publish(next:ModelDirection,source:string,manual:boolean){
  direction=next;
- window.dispatchEvent(new CustomEvent(EVENT,{detail:{direction:[...next],source}}));
+ window.dispatchEvent(new CustomEvent(EVENT,{detail:{direction:[...next],source,automatic:!manual}}));
  if(manual)lastManualChange=performance.now();
  const now=performance.now();
  if(manual&&persistTimer){window.clearTimeout(persistTimer);persistTimer=0;}
